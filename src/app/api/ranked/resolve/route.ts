@@ -14,7 +14,12 @@ export async function POST(request:Request){
   const micro=(row.cs+row.positioning+row.skillshots+row.dodge+row.combat+row.mechanics)/6;
   const macro=(row.vision+row.objectives+row.rotations+row.wave_control+row.decision_making)/5;
   const rankIndex=RANKS.indexOf(row.rank_tier);
-  const simulation=simulateRanked({micro,macro,stamina:row.stamina,stress:row.stress,luck:row.luck,rankIndex});
+  const simulation=simulateRanked({
+    cs:row.cs,positioning:row.positioning,skillshots:row.skillshots,dodge:row.dodge,
+    combat:row.combat,mechanics:row.mechanics,vision:row.vision,objectives:row.objectives,
+    rotations:row.rotations,wave_control:row.wave_control,decision_making:row.decision_making,
+    stamina:row.stamina,stress:row.stress,luck:row.luck,rankIndex
+  });
   const win=simulation.win;
   const lpDelta=win?20:-16, xpDelta=win?120:55, coinsDelta=win?35:15;
   const rank=applyLp(row.rank_tier,row.rank_division,row.lp,lpDelta);
