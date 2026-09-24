@@ -93,22 +93,22 @@ async function loadPet(id: string) {
         "updated_at = NOW()"
       ];
 
+      updates[2] = "stamina = LEAST(100, GREATEST(0, stamina + $3 + $5))";
+      updates[3] = "stress = LEAST(100, GREATEST(0, stress + $4 + $6))";
+
       const params: Array<number | string> = [
         passiveXp,
         passiveCoins,
         passiveStamina,
-        passiveStress
+        passiveStress,
+        event?.stamina ?? 0,
+        event?.stress ?? 0,
+        id
       ];
 
-      if (event) {
-        updates[2] = "stamina = LEAST(100, GREATEST(0, stamina + $3 + $5))";
-        updates[3] = "stress = LEAST(100, GREATEST(0, stress + $4 + $6))";
-        params.push(event.stamina, event.stress);
-      }
-
-      const updated = await client.query(
-        `UPDATE pets SET ${updates.join(", ")} WHERE id = $7 RETURNING *`,
-        [...params, id]
+      await client.query(
+        `UPDATE pets SET ${updates.join(", ")} WHERE id = $7`,
+        params
       );
 
       const eventMessages: string[] = [];
