@@ -56,16 +56,17 @@ export async function POST(request:Request){
        ORDER BY RANDOM() LIMIT 1`
     )).rows;
     if(pool[0]){
-      drop=pool[0];
+      const awardedItem=pool[0];
+      drop=awardedItem;
       await client.query(
         `INSERT INTO pet_items(pet_id,item_id,quantity) VALUES($1,$2,1)
          ON CONFLICT(pet_id,item_id) DO UPDATE SET quantity=pet_items.quantity+1`,
-        [row.pet_id,drop.id]
+        [row.pet_id,awardedItem.id]
       );
       await client.query(
         `INSERT INTO pet_activities(pet_id,activity,stat,amount,stamina_delta,stress_delta,coins_delta,message)
          VALUES($1,'ranked_drop',NULL,1,0,0,0,$2)`,
-        [row.pet_id,"🎁 Encontrou "+drop.name+" ("+drop.rarity+") após a partida."]
+        [row.pet_id,"🎁 Encontrou "+awardedItem.name+" ("+awardedItem.rarity+") após a partida."]
       );
     }
   }
