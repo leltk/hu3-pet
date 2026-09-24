@@ -1,3 +1,12 @@
+FROM debian:bookworm-slim AS godot-builder
+ARG GODOT_VERSION=4.7.2-stable
+WORKDIR /tmp/godot
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates wget unzip libfontconfig1 libx11-6 libxcursor1 libxinerama1 libxrandr2 libxi6 libgl1 libpulse0 libasound2 libwayland-client0 && rm -rf /var/lib/apt/lists/*
+RUN wget -q "https://godot-releases.nbg1.your-objectstorage.com/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip" -O godot.zip  && unzip -q godot.zip  && mv Godot_v4.7.2-stable_linux.x86_64 /usr/local/bin/godot  && chmod +x /usr/local/bin/godot  && wget -q "https://godot-releases.nbg1.your-objectstorage.com/4.7.2-stable/Godot_v4.7.2-stable_export_templates.tpz" -O templates.tpz  && mkdir -p /root/.local/share/godot/export_templates/4.7.2.stable  && unzip -q templates.tpz -d /root/.local/share/godot/export_templates/4.7.2.stable
+WORKDIR /src
+COPY godot ./godot
+RUN mkdir -p godot/build  && godot --headless --path godot --editor --quit  && godot --headless --path godot --export-release "Web" godot/build/index.html  && test -f godot/build/index.html
+
 FROM node:22-alpine AS deps
 WORKDIR /app
 COPY package*.json ./
@@ -7,6 +16,7 @@ FROM node:22-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+COPY --from=godot-builder /src/godot/build ./public/game-engine
 RUN npm run build
 
 FROM node:22-alpine AS runner
