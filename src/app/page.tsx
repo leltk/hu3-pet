@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Home() {
   return (
     <main className="page">
@@ -33,7 +35,7 @@ export default function Home() {
           Treine, descanse, melhore o setup e mande seu pet para a ranqueada.
           A partida acontece enquanto você espera.
         </p>
-        <button>Começar jornada</button>
+        <Link className="start-button" href="/game">Começar jornada</Link>
       </section>
     </main>
   );
