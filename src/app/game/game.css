@@ -134,3 +134,15 @@
 .item-actions{margin-top:8px}.item-actions button{border:0;border-radius:8px;padding:7px 11px;background:var(--green);color:#08120d;font:900 9px inherit;cursor:pointer}.item-actions button:disabled{opacity:.45}.item-actions span{color:#68768a;font-size:8px}
 @media(max-width:700px){.inventory-layout{grid-template-columns:1fr}.inventory-window{padding:14px}.backpack-grid{grid-template-columns:repeat(8,1fr)}.inventory-cell>span{font-size:20px}.inventory-open{font-size:9px;padding:7px 8px}.currency{flex-wrap:wrap;justify-content:flex-end}}
 @media(max-width:450px){.backpack-grid{grid-template-columns:repeat(5,1fr)}.equipment-slot{min-height:78px}.equipment-slot .slot-icon{font-size:24px}.item-inspector{gap:9px}.item-art{width:48px;height:48px;font-size:28px}}
+
+.pet-equipment-visuals{position:absolute;inset:0;z-index:4;pointer-events:none}
+.worn-item{position:absolute;display:grid;place-items:center;font-size:31px;filter:drop-shadow(0 5px 5px #000b);animation:wornFloat 3.2s ease-in-out infinite}
+.worn-head{left:50%;top:1%;transform:translateX(-50%) rotate(-5deg)}
+.worn-body{left:51%;top:38%;transform:translateX(-50%);font-size:27px}
+.worn-weapon{left:76%;top:50%;font-size:34px;transform:rotate(-18deg)}
+.worn-ring_1{left:25%;top:55%;font-size:21px}
+.worn-ring_2{right:25%;top:55%;font-size:21px}
+.worn-boots{left:53%;bottom:8%;font-size:22px}
+.worn-accessory{right:17%;top:35%;font-size:25px}
+@keyframes wornFloat{0%,100%{margin-top:0}50%{margin-top:-3px}}
+@media(max-width:560px){.worn-item{font-size:24px}.worn-weapon{font-size:28px}.worn-accessory{font-size:21px}}
