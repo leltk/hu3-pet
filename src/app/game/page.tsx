@@ -261,25 +261,20 @@ export default function GamePage() {
       </div>
       <small>{testMessage||"Ranqueada: 15s · treino: sem cooldown · offline: 2h"}</small>
     </aside>}
-    <section className="room">
-      <img className="room-art" src="/assets/room.svg?v=2" alt="" />
-      <div className="room-overlay" />
-      <div className="room-hud">
-        <span className="pill">🌙 Noite</span><span className="pill">🏠 Quarto 01</span>
-      </div>
-      <div className={`pet-stage mood-${petMood}`}><div className="pet-equipment-visuals">{equippedVisuals.filter(item=>!item.slot.startsWith("ring_")).map((item)=><span className={`worn-item worn-${item.slot} visual-${item.visual?.head??item.visual?.body??item.visual?.boots??item.visual?.accessory??item.visual?.weapon??"default"}`} key={`${item.slot}-${item.name}`} aria-hidden="true" />)}</div><img src="/assets/pet.svg?v=2" alt={pet.name} /><div className="pet-shadow" /><span className="pet-spark spark-1">✦</span><span className="pet-spark spark-2">✦</span></div>
-      <div className="speech"><span>{message}</span></div>
-      <div className={`match-overlay ${showMatch?"visible":""}`}>
-        <div className="match-overlay-card">
-          <span className="eyebrow">PARTIDA RANQUEADA</span>
-          <strong>{matchPhase}</strong>
-          {matchEvents.length>0&&<div className="match-events">{matchEvents.map((event,i)=><span key={i}>{event}</span>)}</div>}
-          <div className="match-progress"><i style={{width:`${Math.max(2,Math.min(100,100-(remaining/testRankedMs)*100))}%`}} /></div>
-          <small>{mm}:{ss} restantes</small>
+    <section className="engine-shell">
+      <div className="engine-topbar">
+        <div>
+          <p className="eyebrow">HU3 PET · GAME CLIENT</p>
+          <h2>Seu quarto</h2>
         </div>
+        <span>Godot · 3D</span>
       </div>
-
-      <div className="rank-sticker"><small>RANKED</small><strong>{rankName}</strong><b>{pet.lp} LP</b></div>
+      <iframe
+        className="godot-game"
+        src={`/game-engine/index.html?petId=${encodeURIComponent(pet.id)}`}
+        title="Hu3 Pet — quarto 3D"
+        allow="autoplay"
+      />
     </section>
 
     <section className="panel">
