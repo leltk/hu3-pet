@@ -16,5 +16,7 @@ ENV PORT=3000
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
+COPY --from=builder /app/db ./db
+COPY --from=builder /app/scripts/migrate.js ./migrate.js
 EXPOSE 3000
-CMD ["node", "server.js"]
+CMD ["sh", "-c", "node migrate.js && node server.js"]
