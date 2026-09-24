@@ -174,3 +174,79 @@ html,body{background:#f4e7d7!important}body{background:radial-gradient(circle at
 .pet-equipment-visuals{position:absolute;inset:0;z-index:4;pointer-events:none}.worn-item{position:absolute;display:block;filter:drop-shadow(0 4px 3px #5d3b2b35)}.worn-ring_1,.worn-ring_2{display:none}.worn-head{left:50%;top:-3%;width:72px;height:28px;transform:translateX(-50%);background:#8e6aa8;border:3px solid #6f507f;border-radius:40% 40% 18% 18%;clip-path:polygon(8% 100%,92% 100%,78% 20%,50% 0,22% 20%)}.worn-head:after{content:'✦';position:absolute;right:8px;top:-8px;color:#f1d58c;font-size:11px}.worn-body{left:50%;top:48%;width:104px;height:70px;transform:translateX(-50%);background:#7b91bd;border:4px solid #5f739a;border-radius:34% 34% 26% 26%;opacity:.96}.worn-body:after{content:'HU3';position:absolute;left:50%;top:45%;transform:translate(-50%,-50%);font-size:11px;font-weight:900;color:#f8ead9}.worn-boots{left:50%;bottom:1%;width:118px;height:27px;transform:translateX(-50%);background:transparent}.worn-boots:before,.worn-boots:after{content:'';position:absolute;bottom:0;width:47px;height:22px;background:#9b704f;border:3px solid #704d38;border-radius:45% 45% 35% 35%}.worn-boots:before{left:5px}.worn-boots:after{right:5px}.worn-accessory{right:8%;top:42%;width:22px;height:42px;border:5px solid #d49a57;border-left-width:4px;border-radius:50%}.worn-accessory:after{content:'';position:absolute;left:-5px;top:12px;width:24px;height:13px;background:#d49a57;border-radius:8px}.worn-weapon{right:2%;top:53%;width:13px;height:78px;background:#c4a15f;border:3px solid #765a39;border-radius:9px;transform:rotate(28deg)}.worn-weapon:after{content:'';position:absolute;top:-16px;left:-5px;border-left:9px solid transparent;border-right:9px solid transparent;border-bottom:17px solid #d8c49a}
 @media(max-width:900px){.game-shell{grid-template-columns:1fr;padding:16px}.room{height:min(68vw,560px);min-height:440px}.panel{padding:15px}.test-console{grid-template-columns:1fr}.test-console>small{text-align:left}}
 @media(max-width:560px){.game-shell{padding:10px;gap:10px}.room{height:410px;min-height:410px;border-radius:18px}.panel{border-radius:18px;padding:12px}.pet-stage{width:180px;bottom:17%}.speech{max-width:82%;font-size:9px}.training-grid{grid-template-columns:repeat(3,1fr)}.training-grid button{min-height:50px}.test-console-grid button{flex:1 1 44%}.currency{flex-wrap:wrap;justify-content:flex-end}}
+
+
+/* Softer cozy pastel pass: darker background, calmer contrast, better readability */
+:root{
+  --bg:#d9c8b8;
+  --panel:#fff4e7;
+  --panel-soft:#f5e5d4;
+  --line:#d2b9a1;
+  --muted:#806c5d;
+  --text:#49362d;
+  --green:#719b68;
+  --green-soft:#dce8d5;
+  --purple:#9277a8;
+  --gold:#c48d4b;
+  --rose:#c77f83;
+}
+html,body{background:#d9c8b8!important}
+body{
+  background:
+    radial-gradient(circle at 12% 8%,#f0e2d2 0 14%,transparent 34%),
+    radial-gradient(circle at 88% 88%,#cdb9a8 0 10%,transparent 32%),
+    linear-gradient(145deg,#d9c8b8,#cdb9a8)!important;
+}
+.game-shell{color:#49362d}
+.room,.panel{box-shadow:0 12px 32px #60453226}
+.room{border-color:#cdb39a;background:#f8eadb}
+.panel{background:#fff4e7;border-color:#d4bca4}
+.panel h1,.section-title h2{color:#49352b}
+.eyebrow,.section-title small,.section-title>span{color:#856f60}
+.meter{background:#f7e9d9;border-color:#ddc5ad}
+.meter div{color:#5e4739}
+.meter i{background:#dfcdb9}
+.training-grid button{
+  color:#563f32;
+  background:#faecdc;
+  border-color:#d9bea3;
+  box-shadow:0 2px 0 #d3b79c;
+}
+.training-grid button strong{color:#5a4235}
+.training-grid button small{color:#62885c}
+.training-grid button:disabled{opacity:.55}
+.activity{background:#e5efdf;border-color:#c4d7bc;color:#506a49}
+.currency span,.inventory-open{background:#f5e4d0!important;border-color:#d8bda1!important;color:#624b3c!important}
+.setup-card,.test-console{
+  background:#f8eadb!important;
+  border-color:#d6bca2!important;
+  color:#5c4436;
+}
+.setup-card>strong{color:#513a2e}
+.setup-card small,.test-console>small{color:#806b5d}
+.speech{background:#fff7ed;color:#523b30;border-color:#d8bea5}
+.rank-sticker{background:#f8ead9e8;border-color:#d8bea3}
+.rank-sticker small{color:#806b5d}
+.match-overlay-card{background:#fff3e5f2;color:#523b30;border-color:#d5baa0}
+.match-events span{background:#f5e5d4;color:#684f40;border-color:#ddc4aa}
+.history-row{background:#f7e8d7;border-color:#ddc5ad;color:#806a5b}
+.offline-card{background:#f5e5d3;border-color:#d9bea2}
+.inventory-window,.missions-window{
+  background:#f8ecdf;
+  border-color:#d1b79e;
+  color:#4d382e;
+}
+.equipment-paper,.backpack{background:#f2e1cf;border-color:#d6bca3}
+.equipment-slot{background:#f9ecdc;border-color:#d7bea5;color:#5b4437}
+.inventory-cell{background:#f6e6d4;border-color:#d5bca2}
+.item-inspector{background:#f4e4d2;border-color:#d6bca3}
+.missions-banner,.mission-row,.event-row{background:#f4e5d4;border-color:#d7bda3;color:#5a4235}
+.missions-window{box-shadow:0 16px 40px #60453220}
+.missions-notice{background:#e6efdf;border-color:#c2d6b9;color:#536d4d}
+.match-progress{background:#dcc9b6}
+.match-progress i{background:#709b67}
+@media(max-width:560px){
+  .panel{padding:12px}
+  .training-grid button strong{font-size:8px;line-height:1.15}
+  .training-grid button small{font-size:12px}
+}
