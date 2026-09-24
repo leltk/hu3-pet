@@ -60,7 +60,7 @@ async function loadPet(id: string) {
     const pet = rows[0];
     if (!pet) {
       await client.query("ROLLBACK");
-      return { pet: null, offlineReport: null };
+      return { pet: null, offlineReport: null, pendingMatch: null };
     }
 
     const now = Date.now();
@@ -142,12 +142,19 @@ async function loadPet(id: string) {
       );
     }
 
-    const finalPet = offlineReport
-      ? (await client.query("SELECT * FROM pets WHERE id = $1", [id])).rows[0]
-      : (await client.query("SELECT * FROM pets WHERE id = $1", [id])).rows[0];
+    const finalPet = (await client.query("SELECT * FROM pets WHERE id = $1", [id])).rows[0];
+    const matchResult = await client.query(
+      `SELECT id, finishes_at
+       FROM ranked_matches
+       WHERE pet_id = $1 AND result IS NULL
+       ORDER BY created_at DESC
+       LIMIT 1`,
+      [id]
+    );
+    const pendingMatch = matchResult.rows[0] ?? null;
 
     await client.query("COMMIT");
-    return { pet: finalPet, offlineReport };
+    return { pet: finalPet, offlineReport, pendingMatch };
   } catch (error) {
     await client.query("ROLLBACK");
     throw error;
