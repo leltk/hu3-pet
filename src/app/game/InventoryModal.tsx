@@ -3,13 +3,13 @@
 import { useEffect, useState } from "react";
 import { EQUIPMENT_SLOTS, aggregateEffects, type InventoryItem } from "@/lib/game/inventory";
 
-type Props = { petId: string; onClose:()=>void };
+type Props = { petId: string; onClose:()=>void; onChanged?:()=>void };
 
 const rarityLabel: Record<string,string> = {
   common:"Comum", rare:"Raro", epic:"Épico", legendary:"Lendário"
 };
 
-export default function InventoryModal({petId,onClose}:Props) {
+export default function InventoryModal({petId,onClose,onChanged}:Props) {
   const [items,setItems]=useState<InventoryItem[]>([]);
   const [selected,setSelected]=useState<InventoryItem|null>(null);
   const [loading,setLoading]=useState(true);
@@ -32,7 +32,7 @@ export default function InventoryModal({petId,onClose}:Props) {
       headers:{"content-type":"application/json"},
       body:JSON.stringify({petId,itemId:item.id})
     });
-    if(r.ok) await load();
+    if(r.ok) { await load(); onChanged?.(); }
     setBusy(false);
   };
 
@@ -43,7 +43,7 @@ export default function InventoryModal({petId,onClose}:Props) {
       headers:{"content-type":"application/json"},
       body:JSON.stringify({petId,slot})
     });
-    if(r.ok) await load();
+    if(r.ok) { await load(); onChanged?.(); }
     setBusy(false);
   };
 
