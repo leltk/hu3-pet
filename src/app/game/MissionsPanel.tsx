@@ -40,7 +40,7 @@ export default function MissionsPanel({petId,onChanged}:{petId:string;onChanged:
 
   const rollEvent=async()=>{
     setBusy(true);
-    const r=await fetch("/api/events",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({petId}));
+    const r=await fetch("/api/events",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({petId})});
     const data=await r.json();
     if(r.ok&&data.event){setNotice("✨ Um novo evento apareceu!");await load();}
     else setNotice(data.nextRoll?"⏳ Seu pet ainda está em período de espera.":"⚠️ "+(data.error??"Não foi possível gerar evento."));
