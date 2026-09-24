@@ -25,4 +25,5 @@ button { border:0; border-radius:12px; padding:14px 20px; font-size:15px; font-w
 h1 { margin:10px 0 20px; font-size:clamp(42px,6vw,76px); line-height:.95; }
 .intro > p:not(.eyebrow) { color:var(--muted); font-size:18px; line-height:1.6; }
 button { background:#f4f4f5; color:#111217; }
+.start-button { display:inline-block; border:0; border-radius:12px; padding:14px 20px; font-size:15px; font-weight:700; cursor:pointer; background:#f4f4f5; color:#111217; text-decoration:none; }
 @media (max-width:900px) { .page { grid-template-columns:1fr; padding:20px; } .room { min-height:500px; } }
