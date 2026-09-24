@@ -40,7 +40,7 @@ export default function GamePage() {
   const [match, setMatch] = useState<Match | null>(null);
   const [remaining, setRemaining] = useState(0);
   const [message, setMessage] = useState("Seu pet quer virar Challenger.");
-  const [busy, setBusy] = useState(false);
+  const [busy, setBusy] = useState(false);\n  const [activity, setActivity] = useState("Escolha um treino.");
 
   const refresh = async () => {
     if (!pet) return;
@@ -59,7 +59,7 @@ export default function GamePage() {
     setBusy(false);
   };
 
-  const startRanked = async () => {
+  const train = async (action: string) => {\n    if (!pet) return;\n    setBusy(true);\n    const r = await fetch("/api/training", {method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({petId:pet.id,action})});\n    const data = await r.json();\n    setActivity(r.ok ? "🏋️ "+data.message : "⚠️ "+(data.error ?? "Não foi possível treinar."));\n    if (r.ok) setPet(data.pet);\n    setBusy(false);\n  };\n\n  const rest = async () => {\n    if (!pet) return;\n    setBusy(true);\n    const r=await fetch("/api/recovery",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({petId:pet.id})});\n    const data=await r.json();\n    setActivity(r.ok ? data.message : "⚠️ "+(data.error ?? "Não foi possível descansar."));\n    if(r.ok) setPet(data.pet);\n    setBusy(false);\n  };\n\n  const startRanked = async () => {
     if (!pet) return;
     setBusy(true);
     const r = await fetch("/api/ranked/start", {
@@ -148,7 +148,7 @@ export default function GamePage() {
           <div>😵 Stress <b>{pet.stress}</b><i><em style={{width:`${pet.stress}%`}} /></i></div>
         </div>
 
-        <div className="stats">
+        <div className="activity">{activity}</div>\n\n        <div className="training"><h2>🏋️ Treinar</h2><div className="training-grid">{micro.map(k=><button key={k} onClick={()=>train(k)} disabled={busy}>{k}</button>)}</div><div className="training-grid">{macro.map(k=><button key={k} onClick={()=>train(k)} disabled={busy}>{k.replace("_"," ")}</button>)}</div><button className="rest" onClick={rest} disabled={busy}>💤 Dormir / Recuperar</button></div>\n\n        <div className="stats">
           <article><h3>🎯 MICRO <b>{avg(micro)}</b></h3>{micro.map(k=><div key={k}><span>{k.replace("_"," ")}</span><b>{pet[k]}</b></div>)}</article>
           <article><h3>🧠 MACRO <b>{avg(macro)}</b></h3>{macro.map(k=><div key={k}><span>{k.replace("_"," ")}</span><b>{pet[k]}</b></div>)}</article>
         </div>
