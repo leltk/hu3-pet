@@ -20,6 +20,12 @@ type OfflineReport = {
   events: string[];
 };
 
+type PetLoad = {
+  pet: Pet;
+  offlineReport: OfflineReport | null;
+  pendingMatch: Match | null;
+};
+
 const micro = [
   ["cs","CS"],["positioning","Posicionamento"],["skillshots","Skillshots"],
   ["dodge","Dodge"],["combat","Combate"],["mechanics","Mecânica"]
@@ -73,9 +79,32 @@ export default function GamePage() {
         window.localStorage.removeItem("hu3-pet-id");
         return;
       }
-      const data=await r.json();
+      const data:PetLoad=await r.json();
       setPet(data.pet);
       setOfflineReport(data.offlineReport ?? null);
+
+      if(data.pendingMatch){
+        const finishTime=new Date(data.pendingMatch.finishesAt).getTime();
+        if(finishTime>Date.now()){
+          setMatch({id:data.pendingMatch.id,finishesAt:data.pendingMatch.finishesAt});
+          setRemaining(Math.max(0,finishTime-Date.now()));
+          setShowMatch(true);
+          setMessage("🎮 Você voltou. Seu pet ainda está na ranqueada.");
+        } else {
+          const resolved=await fetch("/api/ranked/resolve",{
+            method:"POST",
+            headers:{"content-type":"application/json"},
+            body:JSON.stringify({matchId:data.pendingMatch.id})
+          });
+          if(resolved.ok){
+            const result=await resolved.json();
+            setPet(result.pet);
+            setPetMood(result.win?"happy":"tilt");
+            setMessage(result.win?`🏆 Você estava fora, mas venceu! +${result.lpDelta} LP`:`💀 Você voltou e a partida terminou em derrota. ${result.lpDelta} LP`);
+          }
+        }
+      }
+
       await loadHistoryById(savedId);
       if(data.offlineReport){
         setActivity(`🌙 Seu pet ficou ${data.offlineReport.awayMinutes} min sozinho e continuou a vida dele.`);
