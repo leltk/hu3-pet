@@ -47,6 +47,15 @@ export default function InventoryModal({petId,onClose,onChanged}:Props) {
     setBusy(false);
   };
 
+  const useItem=async(item:InventoryItem)=>{
+    setBusy(true);setMessage("");
+    const r=await fetch("/api/inventory/use",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({petId,itemId:item.id})});
+    const data=await r.json();
+    setMessage(data.message??data.error??"Não foi possível usar o item");
+    if(r.ok){await load();onChanged?.();}
+    setBusy(false);
+  };
+
   const equipped=items.filter(i=>i.equippedSlot);
   const effects=aggregateEffects(items);
   const backpack=items.filter(i=>!i.equippedSlot);
@@ -100,9 +109,12 @@ export default function InventoryModal({petId,onClose,onChanged}:Props) {
           <p>{selected.description}</p>
           <small>Origem: {selected.origin??"desconhecida"}{selected.limited?" · LIMITADO":""}</small>
           {Object.entries(selected.effects).map(([key,value])=><div className="item-effect" key={key}>✦ {key.replaceAll("_"," ")}: <b>+{value}{key.includes("pct")||key.includes("chance")?"%":""}</b></div>)}
+          {message&&<small className="inventory-message">{message}</small>}
           <div className="item-actions">
             {selected.slot&&selected.equippedSlot?<button disabled={busy} onClick={()=>unequip(selected.slot!)}>Desequipar</button>:
-             selected.slot?<button disabled={busy} onClick={()=>equip(selected)}>Equipar</button>:<span>Consumível — uso em breve</span>}
+             selected.slot?<button disabled={busy} onClick={()=>equip(selected)}>Equipar</button>:
+             selected.category==="consumable"?<button disabled={busy} onClick={()=>useItem(selected)}>Usar</button>:
+             <span>Item de coleção</span>}
           </div>
         </div>
       </div>}
