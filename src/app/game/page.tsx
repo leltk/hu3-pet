@@ -21,6 +21,8 @@ type OfflineReport = {
   events: string[];
 };
 
+type EquippedVisual = { icon:string; name:string; slot:string };
+
 type PetLoad = {
   pet: Pet;
   offlineReport: OfflineReport | null;
@@ -51,11 +53,20 @@ export default function GamePage() {
   const [history,setHistory]=useState<any[]>([]);
   const [offlineReport,setOfflineReport]=useState<OfflineReport|null>(null);
   const [showInventory,setShowInventory]=useState(false);
+  const [equippedVisuals,setEquippedVisuals]=useState<EquippedVisual[]>([]);
 
 
   const loadHistoryById=async(id:string)=>{
     const r=await fetch(`/api/ranked/history?petId=${id}`);
     if(r.ok)setHistory(await r.json());
+  };
+
+  const loadEquipment=async(id:string)=>{
+    const r=await fetch(`/api/inventory?petId=${id}`);
+    if(r.ok){
+      const items=await r.json();
+      setEquippedVisuals(items.filter((item:any)=>item.equippedSlot).map((item:any)=>({icon:item.icon,name:item.name,slot:item.equippedSlot})));
+    }
   };
 
   const loadHistory=async()=>{ if(pet) await loadHistoryById(pet.id); };
@@ -108,6 +119,7 @@ export default function GamePage() {
       }
 
       await loadHistoryById(savedId);
+      await loadEquipment(savedId);
       if(data.offlineReport){
         setActivity(`🌙 Seu pet ficou ${data.offlineReport.awayMinutes} min sozinho e continuou a vida dele.`);
         setPetMood(data.offlineReport.events.some((event:string)=>event.includes("praticando"))?"happy":"idle");
@@ -126,6 +138,7 @@ export default function GamePage() {
       setOfflineReport(null);
       window.localStorage.setItem("hu3-pet-id",created.id);
       await loadHistoryById(created.id);
+      await loadEquipment(created.id);
     }
     setBusy(false);
   };
@@ -206,7 +219,7 @@ export default function GamePage() {
       <div className="room-hud">
         <span className="pill">🌙 Noite</span><span className="pill">🏠 Quarto 01</span>
       </div>
-      <div className={`pet-stage mood-${petMood}`}><img src="/assets/pet.svg" alt={pet.name} /><div className="pet-shadow" /><span className="pet-spark spark-1">✦</span><span className="pet-spark spark-2">✦</span></div>
+      <div className={`pet-stage mood-${petMood}`}><div className="pet-equipment-visuals">{equippedVisuals.map((item,i)=><span className={`worn-item worn-${item.slot}`} key={`${item.slot}-${item.name}`}>{item.icon}</span>)}</div><img src="/assets/pet.svg" alt={pet.name} /><div className="pet-shadow" /><span className="pet-spark spark-1">✦</span><span className="pet-spark spark-2">✦</span></div>
       <div className="speech"><span>{message}</span></div>
       <div className={`match-overlay ${showMatch?"visible":""}`}>
         <div className="match-overlay-card">
@@ -265,6 +278,6 @@ export default function GamePage() {
       </div>
       <div className="mini-stats"><span>🍀 Sorte <b>{pet.luck}</b></span><span>🎯 Micro <b>{microAvg}</b></span><span>🧠 Macro <b>{macroAvg}</b></span></div>
     </section>
-    {showInventory&&<InventoryModal petId={pet.id} onClose={()=>setShowInventory(false)} />}
+    {showInventory&&<InventoryModal petId={pet.id} onClose={()=>setShowInventory(false)} onChanged={()=>loadEquipment(pet.id)} />}
   </main>;
 }
