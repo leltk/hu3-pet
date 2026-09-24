@@ -22,7 +22,7 @@ type OfflineReport = {
   events: string[];
 };
 
-type EquippedVisual = { icon:string; name:string; slot:string };
+type EquippedVisual = { icon:string; name:string; slot:string; visual?:Record<string,string> };
 
 type PetLoad = {
   pet: Pet;
@@ -55,6 +55,9 @@ export default function GamePage() {
   const [offlineReport,setOfflineReport]=useState<OfflineReport|null>(null);
   const [showInventory,setShowInventory]=useState(false);
   const [equippedVisuals,setEquippedVisuals]=useState<EquippedVisual[]>([]);
+  const [testMode,setTestMode]=useState(false);
+  const [testMessage,setTestMessage]=useState("");
+  const [testRankedMs,setTestRankedMs]=useState(1800000);
 
 
   const loadHistoryById=async(id:string)=>{
@@ -66,7 +69,7 @@ export default function GamePage() {
     const r=await fetch(`/api/inventory?petId=${id}`);
     if(r.ok){
       const items=await r.json();
-      setEquippedVisuals(items.filter((item:any)=>item.equippedSlot).map((item:any)=>({icon:item.icon,name:item.name,slot:item.equippedSlot})));
+      setEquippedVisuals(items.filter((item:any)=>item.equippedSlot).map((item:any)=>({icon:item.icon,name:item.name,slot:item.equippedSlot,visual:item.visual??{}})));
     }
   };
 
@@ -84,6 +87,10 @@ export default function GamePage() {
   };
 
   useEffect(()=>{
+    fetch("/api/dev/timers").then(r=>r.ok?r.json():null).then(data=>{
+      if(data?.enabled){ setTestMode(true); setTestRankedMs(data.timers.rankedMs); }
+    }).catch(()=>{});
+
     const savedId=window.localStorage.getItem("hu3-pet-id");
     if(!savedId)return;
 
@@ -162,6 +169,28 @@ export default function GamePage() {
     if(r.ok)setPet(data.pet); setBusy(false);
   };
 
+  const runTimerTest=async(action:string)=>{
+    if(!pet||!testMode)return;
+    setTestMessage("Aplicando teste...");
+    const r=await fetch("/api/dev/timers",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({petId:pet.id,action})});
+    const data=await r.json();
+    setTestMessage(r.ok?data.message:(data.error??"Falha no teste."));
+    if(r.ok){
+      if(action==="offline"||action==="all") await refresh();
+      if(action==="ranked"||action==="all"){
+        const loaded=await fetch(`/api/pets?id=${pet.id}`);
+        if(loaded.ok){
+          const next=await loaded.json();
+          if(next.pendingMatch){
+            setMatch({id:next.pendingMatch.id,finishesAt:next.pendingMatch.finishesAt});
+            setRemaining(0);
+            setShowMatch(true);
+          }
+        }
+      }
+    }
+  };
+
   const startRanked=async()=>{
     if(!pet)return; setBusy(true);
     const r=await fetch("/api/ranked/start",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({petId:pet.id})});
@@ -175,7 +204,7 @@ export default function GamePage() {
     if(!match)return;
     const tick=window.setInterval(async()=>{
       const left=Math.max(0,new Date(match.finishesAt).getTime()-Date.now()); setRemaining(left);
-      const elapsed=1800000-left; setMatchPhase(elapsed<120000?"🔎 Encontrando adversário...":elapsed<600000?"⚔️ Fase de rotas":elapsed<1200000?"🐉 Disputa de objetivos":elapsed<1680000?"💥 Teamfights decisivas":"🏆 Últimos minutos da partida");
+      const elapsed=Math.max(0,testRankedMs-left); setMatchPhase(elapsed<120000?"🔎 Encontrando adversário...":elapsed<600000?"⚔️ Fase de rotas":elapsed<1200000?"🐉 Disputa de objetivos":elapsed<1680000?"💥 Teamfights decisivas":"🏆 Últimos minutos da partida");
       if(left===0){
         window.clearInterval(tick);
         const r=await fetch("/api/ranked/resolve",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({matchId:match.id})});
@@ -221,20 +250,30 @@ export default function GamePage() {
   const macroAvg=avg(macro);
 
   return <main className="game-shell">
+    {testMode&&<aside className="test-console">
+      <div className="test-console-head"><span>🧪 MODO TESTE</span><b>Timers acelerados</b></div>
+      <div className="test-console-grid">
+        <button onClick={()=>runTimerTest("training")}>⚡ Liberar treino</button>
+        <button onClick={()=>runTimerTest("ranked")}>🎮 Concluir ranqueada</button>
+        <button onClick={()=>runTimerTest("offline")}>🌙 Simular 2h offline</button>
+        <button className="test-all" onClick={()=>runTimerTest("all")}>✨ Liberar tudo</button>
+      </div>
+      <small>{testMessage||"Ranqueada: 15s · treino: sem cooldown · offline: 2h"}</small>
+    </aside>
     <section className="room">
       <img className="room-art" src="/assets/room.svg" alt="" />
       <div className="room-overlay" />
       <div className="room-hud">
         <span className="pill">🌙 Noite</span><span className="pill">🏠 Quarto 01</span>
       </div>
-      <div className={`pet-stage mood-${petMood}`}><div className="pet-equipment-visuals">{equippedVisuals.map((item,i)=><span className={`worn-item worn-${item.slot}`} key={`${item.slot}-${item.name}`}>{item.icon}</span>)}</div><img src="/assets/pet.svg" alt={pet.name} /><div className="pet-shadow" /><span className="pet-spark spark-1">✦</span><span className="pet-spark spark-2">✦</span></div>
+      <div className={`pet-stage mood-${petMood}`}><div className="pet-equipment-visuals">{equippedVisuals.filter(item=>!item.slot.startsWith("ring_")).map((item)=><span className={`worn-item worn-${item.slot} visual-${item.visual?.head??item.visual?.body??item.visual?.boots??item.visual?.accessory??item.visual?.weapon??"default"}`} key={`${item.slot}-${item.name}`} aria-hidden="true" />)}</div><img src="/assets/pet.svg" alt={pet.name} /><div className="pet-shadow" /><span className="pet-spark spark-1">✦</span><span className="pet-spark spark-2">✦</span></div>
       <div className="speech"><span>{message}</span></div>
       <div className={`match-overlay ${showMatch?"visible":""}`}>
         <div className="match-overlay-card">
           <span className="eyebrow">PARTIDA RANQUEADA</span>
           <strong>{matchPhase}</strong>
           {matchEvents.length>0&&<div className="match-events">{matchEvents.map((event,i)=><span key={i}>{event}</span>)}</div>}
-          <div className="match-progress"><i style={{width:`${Math.max(2,Math.min(100,100-(remaining/1800000)*100))}%`}} /></div>
+          <div className="match-progress"><i style={{width:`${Math.max(2,Math.min(100,100-(remaining/testRankedMs)*100))}%`}} /></div>
           <small>{mm}:{ss} restantes</small>
         </div>
       </div>
