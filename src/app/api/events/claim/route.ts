@@ -14,6 +14,13 @@ export async function POST(request:Request){
     const xp=Math.max(0,Number(rewards.xp??0)),coins=Math.max(0,Number(rewards.coins??0));
     await client.query("UPDATE pets SET xp=xp+$1,coins=coins+$2,updated_at=NOW() WHERE id=$3",[xp,coins,petId]);
     if(rewards.stamina) await client.query("UPDATE pets SET stamina=LEAST(100,stamina+$1) WHERE id=$2",[Number(rewards.stamina),petId]);
+    if(rewards.item_id){
+      const quantity=Math.max(1,Number(rewards.item_quantity??1));
+      await client.query(
+        "INSERT INTO pet_items(pet_id,item_id,quantity) VALUES($1,$2,$3) ON CONFLICT(pet_id,item_id) DO UPDATE SET quantity=pet_items.quantity+$3",
+        [petId,rewards.item_id,quantity]
+      );
+    }
     await client.query("UPDATE game_events SET claimed=TRUE,claimed_at=NOW() WHERE id=$1",[eventId]);
     await client.query("INSERT INTO pet_activities(pet_id,activity,stat,amount,stamina_delta,stress_delta,coins_delta,message) VALUES($1,'event_reward',NULL,1,$2,0,$3,$4)",
       [petId,Number(rewards.stamina??0),coins,`🎁 Evento: ${event.title} · recompensa resgatada.`]);
