@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { progressMissions } from "@/lib/game/missions";
 
 export async function POST(request:Request){
   const {petId,itemId}=await request.json();
@@ -20,6 +21,7 @@ export async function POST(request:Request){
     else await client.query("UPDATE pet_items SET quantity=quantity-1 WHERE pet_id=$1 AND item_id=$2",[petId,itemId]);
     const message="🍪 Usou "+row.name+" e recuperou "+stamina+" de stamina.";
     await client.query("INSERT INTO pet_activities(pet_id,activity,stat,amount,stamina_delta,stress_delta,coins_delta,message) VALUES($1,'consumable',NULL,$2,$2,-4,0,$3)",[petId,stamina,message]);
+    await progressMissions(client,petId,"item_use",1);
     await client.query("COMMIT");
     const pet=(await db.query("SELECT * FROM pets WHERE id=$1",[petId])).rows[0];
     return NextResponse.json({ok:true,pet,message});
