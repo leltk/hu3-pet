@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     const {rows}=await client.query("SELECT * FROM pets WHERE id=$1 FOR UPDATE",[petId]);
     const pet=rows[0];
     if (!pet) { await client.query("ROLLBACK"); return NextResponse.json({error:"Pet não encontrado"},{status:404}); }
-    if (pet.next_ranked_at && new Date(pet.next_ranked_at)>new Date()) { await client.query("ROLLBACK"); return NextResponse.json({error:"Seu pet está em uma ranqueada."},{status:409}); }
+    if (!TEST_MODE && pet.next_ranked_at && new Date(pet.next_ranked_at)>new Date()) { await client.query("ROLLBACK"); return NextResponse.json({error:"Seu pet está em uma ranqueada."},{status:409}); }
     const gearResult=await client.query(
       `SELECT i.effects FROM item_definitions i
        JOIN pet_equipment pe ON pe.item_id=i.id
@@ -84,6 +84,7 @@ export async function POST(request: Request) {
     return NextResponse.json({pet:updated.rows[0],message:resultMessages.join(" · "),critical,secondaryStat});
   } catch(error) {
     await client.query("ROLLBACK");
-    return NextResponse.json({error:error instanceof Error?error.message:"Erro no treino"},{status:400});
+    console.error("[training] failed", error);
+    return NextResponse.json({error:error instanceof Error?error.message:"Erro no treino"},{status:500});
   } finally { client.release(); }
 }
