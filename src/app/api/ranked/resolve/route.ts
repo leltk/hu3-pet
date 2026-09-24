@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { simulateRanked } from "@/lib/game/simulation";
 import { applyLp, RANKS } from "@/lib/game/ranks";
+import { progressMissions } from "@/lib/game/missions";
 
 export async function POST(request:Request){
   const {matchId}=await request.json();
@@ -69,6 +70,8 @@ export async function POST(request:Request){
     }
   }
 
+  await progressMissions(client,row.pet_id,"ranked",1);
+  if(win) await progressMissions(client,row.pet_id,"ranked_win",1);
   await client.query("COMMIT");
   return NextResponse.json({result:win?"WIN":"LOSS",win,lpDelta,xpDelta:rankedXp,baseXpDelta:xpDelta,coinsDelta,rank,simulation,micro:Math.round(micro),macro:Math.round(macro),highlight,drop,pet:updated.rows[0]});
   } catch(error) {
