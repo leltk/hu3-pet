@@ -260,7 +260,7 @@ export default function GamePage() {
         <button className="test-all" onClick={()=>runTimerTest("all")}>✨ Liberar tudo</button>
       </div>
       <small>{testMessage||"Ranqueada: 15s · treino: sem cooldown · offline: 2h"}</small>
-    </aside>
+    </aside>}
     <section className="room">
       <img className="room-art" src="/assets/room.svg" alt="" />
       <div className="room-overlay" />
