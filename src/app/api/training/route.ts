@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { progressMissions } from "@/lib/game/missions";
+import { GAME_TIMERS } from "@/lib/game/dev";
 
 const ACTIONS: Record<string,{label:string;stat:string;amount:number;stamina:number;stress:number;coins:number}> = {
   cs:{label:"Farm Training",stat:"cs",amount:3,stamina:-8,stress:3,coins:-2},
@@ -39,7 +40,7 @@ export async function POST(request: Request) {
       }
     }
 
-    const baseCooldownMs=30000;
+    const baseCooldownMs=GAME_TIMERS.trainingCooldownMs;
     const cooldownPct=Math.min(90,Math.max(0,effects.training_cooldown_pct??0));
     const cooldownMs=baseCooldownMs*(1-cooldownPct/100);
     if(pet.last_training_at && Date.now()-new Date(pet.last_training_at).getTime()<cooldownMs){
