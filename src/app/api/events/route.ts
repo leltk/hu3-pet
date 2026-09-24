@@ -8,21 +8,6 @@ function rollRarity(rare:number,special:number) {
   return "common";
 }
 
-const EVENT_POOL = {
-  common: [
-    ["Lanchinho no teclado","Seu pet achou uma moeda e um biscoito perto do setup.","🍪",{"coins":8,"stamina":4}],
-    ["Replay inesperado","Uma jogada antiga apareceu no histórico e virou uma mini sessão de estudo.","🎬",{"xp":18}]
-  ],
-  rare: [
-    ["Caixa esquecida","Atrás do monitor havia uma pequena caixa que ninguém lembrava de ter visto.","📦",{"coins":35,"xp":45}],
-    ["Fila dos sonhos","Seu pet encontrou um parceiro de treino particularmente paciente.","✨",{"xp":70,"coins":20}]
-  ],
-  special: [
-    ["Sinal do Rift","As luzes do setup piscaram e o pet jurou ter recebido um sinal do Rift.","🌌",{"xp":120,"coins":50}],
-    ["Drop misterioso","Uma cápsula estranha apareceu no quarto. O que será que tem dentro?","🎁",{"coins":80,"xp":90}]
-  ]
-} as const;
-
 export async function GET(request:Request){
   const petId=new URL(request.url).searchParams.get("petId");
   if(!petId)return NextResponse.json({error:"petId é obrigatório"},{status:400});
@@ -49,11 +34,18 @@ export async function POST(request:Request){
       special+=Number(row.effects?.special_event_chance??0);
     }
     const rarity=rollRarity(rare,special);
-    const pool=EVENT_POOL[rarity as keyof typeof EVENT_POOL];
-    const [title,description,icon,rewards]=pool[Math.floor(Math.random()*pool.length)];
+    const pool=(await client.query(
+      "SELECT * FROM event_definitions WHERE active=TRUE AND rarity=$1",
+      [rarity]
+    )).rows;
+    if(!pool.length){
+      await client.query("ROLLBACK");
+      return NextResponse.json({event:null,nextRoll:"no-content"});
+    }
+    const definition=pool[Math.floor(Math.random()*pool.length)];
     const event=(await client.query(
       "INSERT INTO game_events(pet_id,event_type,title,description,rarity,rewards) VALUES($1,'encounter',$2,$3,$4,$5) RETURNING *",
-      [petId,`${icon} ${title}`,description,rarity,JSON.stringify(rewards)]
+      [petId,definition.title,definition.description,rarity,definition.rewards]
     )).rows[0];
     await client.query("COMMIT");
     return NextResponse.json(event);
