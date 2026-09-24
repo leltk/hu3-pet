@@ -2,7 +2,19 @@ FROM debian:bookworm-slim AS godot-builder
 ARG GODOT_VERSION=4.7.2-stable
 WORKDIR /tmp/godot
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates wget unzip libfontconfig1 libx11-6 libxcursor1 libxinerama1 libxrandr2 libxi6 libgl1 libpulse0 libasound2 libwayland-client0 && rm -rf /var/lib/apt/lists/*
-RUN wget -q "https://godot-releases.nbg1.your-objectstorage.com/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip" -O godot.zip  && unzip -q godot.zip  && mv Godot_v4.7.2-stable_linux.x86_64 /usr/local/bin/godot  && chmod +x /usr/local/bin/godot  && wget -q "https://godot-releases.nbg1.your-objectstorage.com/4.7.2-stable/Godot_v4.7.2-stable_export_templates.tpz" -O templates.tpz  && mkdir -p /root/.local/share/godot/export_templates/4.7.2.stable /tmp/godot-templates \
+RUN wget -q "https://godot-releases.nbg1.your-objectstorage.com/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip" -O godot.zip \
+ && unzip -q godot.zip \
+ && mv Godot_v4.7.2-stable_linux.x86_64 /usr/local/bin/godot \
+ && chmod +x /usr/local/bin/godot \
+ && wget -q "https://godot-releases.nbg1.your-objectstorage.com/4.7.2-stable/Godot_v4.7.2-stable_export_templates.tpz" -O templates.tpz \
+ && mkdir -p /root/.local/share/godot/export_templates/4.7.2.stable /tmp/godot-templates \
+ && unzip -q templates.tpz -d /tmp/godot-templates \
+ && release_template=$(find /tmp/godot-templates -type f -name 'web_nothreads_release.zip' | head -n 1) \
+ && debug_template=$(find /tmp/godot-templates -type f -name 'web_nothreads_debug.zip' | head -n 1) \
+ && test -n "$release_template" \
+ && test -n "$debug_template" \
+ && cp "$release_template" /root/.local/share/godot/export_templates/4.7.2.stable/web_nothreads_release.zip \
+ && cp "$debug_template" /root/.local/share/godot/export_templates/4.7.2.stable/web_nothreads_debug.zip
  && unzip -q templates.tpz -d /tmp/godot-templates \
  && find /tmp/godot-templates -type f -name 'web_nothreads_release.zip' -exec cp {} /root/.local/share/godot/export_templates/4.7.2.stable/ \\; \
  && find /tmp/godot-templates -type f -name 'web_nothreads_debug.zip' -exec cp {} /root/.local/share/godot/export_templates/4.7.2.stable/ \\; \
