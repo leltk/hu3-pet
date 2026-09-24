@@ -26,18 +26,58 @@ export async function POST(request: Request) {
     const pet=rows[0];
     if (!pet) { await client.query("ROLLBACK"); return NextResponse.json({error:"Pet não encontrado"},{status:404}); }
     if (pet.next_ranked_at && new Date(pet.next_ranked_at)>new Date()) { await client.query("ROLLBACK"); return NextResponse.json({error:"Seu pet está em uma ranqueada."},{status:409}); }
+    const gearResult=await client.query(
+      `SELECT i.effects FROM item_definitions i
+       JOIN pet_equipment pe ON pe.item_id=i.id
+       WHERE pe.pet_id=$1`,[petId]
+    );
+    const effects:Record<string,number>={};
+    for(const row of gearResult.rows){
+      for(const [key,value] of Object.entries(row.effects??{})){
+        if(typeof value==="number") effects[key]=(effects[key]??0)+value;
+      }
+    }
+
+    const baseCooldownMs=30000;
+    const cooldownPct=Math.min(90,Math.max(0,effects.training_cooldown_pct??0));
+    const cooldownMs=baseCooldownMs*(1-cooldownPct/100);
+    if(pet.last_training_at && Date.now()-new Date(pet.last_training_at).getTime()<cooldownMs){
+      const remaining=Math.ceil((cooldownMs-(Date.now()-new Date(pet.last_training_at).getTime()))/1000);
+      await client.query("ROLLBACK");
+      return NextResponse.json({error:`Treino em cooldown. Aguarde ${remaining}s.`,cooldownRemaining:remaining},{status:409});
+    }
+
     if (pet.stamina<Math.abs(config.stamina)) { await client.query("ROLLBACK"); return NextResponse.json({error:"Sem stamina. Hora de descansar."},{status:409}); }
     if (pet.coins+config.coins<0) { await client.query("ROLLBACK"); return NextResponse.json({error:"Sem moedas para esse treino."},{status:409}); }
 
     const stat=config.stat;
     const current=Number(pet[stat]??0);
-    const gain=Math.max(1,Math.round(config.amount*(1-Math.min(current,100)/220)));
-    const query="UPDATE pets SET "+stat+"="+stat+"+$1, stamina=GREATEST(0,stamina+$2), stress=LEAST(100,stress+$3), coins=GREATEST(0,coins+$4), xp=xp+10, updated_at=NOW() WHERE id=$5";
-    await client.query(query,[gain,config.stamina,config.stress,config.coins,petId]);
-    await client.query("INSERT INTO pet_activities(pet_id,activity,stat,amount,stamina_delta,stress_delta,coins_delta) VALUES($1,$2,$3,$4,$5,$6,$7)",[petId,config.label,stat,gain,config.stamina,config.stress,config.coins]);
+    const gainBase=Math.max(1,Math.round(config.amount*(1-Math.min(current,100)/220)));
+    const statBonus=stat==="skillshots"?(effects.skillshots_xp_pct??0):stat==="combat"?(effects.combat_xp_pct??0):0;
+    const xpMultiplier=1+((effects.training_xp_pct??0)+statBonus)/100;
+    const critical=Math.random()*100<(effects.critical_training_chance??0);
+    const gain=Math.max(1,Math.round(gainBase*xpMultiplier*(critical?2:1)));
+    const xp=Math.max(1,Math.round(10*xpMultiplier*(critical?2:1)));
+    const secondary=Math.random()*100<(effects.secondary_stat_chance??0);
+    let secondaryStat:string|null=null;
+    let secondaryGain=0;
+    if(secondary){
+      const candidates=Object.keys(ACTIONS).filter(k=>k!==stat);
+      secondaryStat=candidates[Math.floor(Math.random()*candidates.length)]?.replace("cs","cs")??null;
+      if(secondaryStat){
+        secondaryGain=Math.max(1,Math.round(gainBase*0.35));
+      }
+    }
+    const staminaBonus=effects.activity_stamina??0;
+    const query="UPDATE pets SET "+stat+"="+stat+"+$1"+(secondaryStat?", "+secondaryStat+"="+secondaryStat+"+$7":"")+", stamina=GREATEST(0,stamina+$2+$8), stress=LEAST(100,stress+$3), coins=GREATEST(0,coins+$4), xp=xp+$6, last_training_at=NOW(), updated_at=NOW() WHERE id=$5";
+    await client.query(query,[gain,config.stamina,config.stress,config.coins,petId,xp,secondaryGain,staminaBonus]);
+    const resultMessages=[`+${gain} ${stat}`,`+${xp} XP`];
+    if(critical) resultMessages.push("💥 TREINO CRÍTICO!");
+    if(secondaryStat) resultMessages.push(`⚡ Treino também melhorou ${secondaryStat} (+${secondaryGain})`);
+    await client.query("INSERT INTO pet_activities(pet_id,activity,stat,amount,stamina_delta,stress_delta,coins_delta,message) VALUES($1,$2,$3,$4,$5,$6,$7,$8)",[petId,config.label,stat,gain,config.stamina+staminaBonus,config.stress,config.coins,resultMessages.join(" · ")]);
     await client.query("COMMIT");
     const updated=await db.query("SELECT * FROM pets WHERE id=$1",[petId]);
-    return NextResponse.json({pet:updated.rows[0],message:"+"+gain+" "+stat});
+    return NextResponse.json({pet:updated.rows[0],message:resultMessages.join(" · "),critical,secondaryStat});
   } catch(error) {
     await client.query("ROLLBACK");
     return NextResponse.json({error:error instanceof Error?error.message:"Erro no treino"},{status:400});
