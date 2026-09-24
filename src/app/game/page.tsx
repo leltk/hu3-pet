@@ -179,7 +179,14 @@ export default function GamePage() {
         window.clearInterval(tick);
         const r=await fetch("/api/ranked/resolve",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({matchId:match.id})});
         const data=await r.json();
-        if(r.ok){setOfflineReport(null);setMessage(data.win?`🏆 Vitória! +${data.lpDelta} LP`:`💀 Derrota. ${data.lpDelta} LP`);setPet(data.pet);setPetMood(data.win?"happy":"tilt");setMatchEvents(data.simulation?.events??[]);loadHistory();}
+        if(r.ok){
+          setOfflineReport(null);
+          const resultMessage=data.drop
+            ? (data.win?`🏆 Vitória! +${data.lpDelta} LP · 🎁 ${data.drop.name}`:`💀 Derrota. ${data.lpDelta} LP · 🎁 ${data.drop.name}`)
+            : (data.win?`🏆 Vitória! +${data.lpDelta} LP`:`💀 Derrota. ${data.lpDelta} LP`);
+          setMessage(resultMessage);
+          setPet(data.pet);setPetMood(data.win?"happy":"tilt");setMatchEvents(data.simulation?.events??[]);loadHistory();
+        }
         else setMessage(data.error??"Erro ao resolver partida.");
         setMatch(null); setRemaining(0); setShowMatch(false);
       }
