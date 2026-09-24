@@ -204,7 +204,7 @@ export default function GamePage() {
     if(!match)return;
     const tick=window.setInterval(async()=>{
       const left=Math.max(0,new Date(match.finishesAt).getTime()-Date.now()); setRemaining(left);
-      const elapsed=Math.max(0,testRankedMs-left); setMatchPhase(elapsed<120000?"🔎 Encontrando adversário...":elapsed<600000?"⚔️ Fase de rotas":elapsed<1200000?"🐉 Disputa de objetivos":elapsed<1680000?"💥 Teamfights decisivas":"🏆 Últimos minutos da partida");
+      const elapsed=Math.max(0,testRankedMs-left); setMatchPhase(elapsed<testRankedMs*0.1?"🔎 Encontrando adversário...":elapsed<testRankedMs*0.35?"⚔️ Fase de rotas":elapsed<testRankedMs*0.62?"🐉 Disputa de objetivos":elapsed<testRankedMs*0.86?"💥 Teamfights decisivas":"🏆 Últimos minutos da partida");
       if(left===0){
         window.clearInterval(tick);
         const r=await fetch("/api/ranked/resolve",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({matchId:match.id})});
