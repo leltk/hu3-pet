@@ -40,7 +40,8 @@ export default function GamePage() {
   const [petMood,setPetMood]=useState<"idle"|"happy"|"tired"|"tilt">("idle");
   const [showMatch,setShowMatch]=useState(false);
   const [matchPhase,setMatchPhase]=useState("Preparando a fila...");
-  const [matchEvents,setMatchEvents]=useState<string[]>([]);\n  const [history,setHistory]=useState<any[]>([]);
+  const [matchEvents,setMatchEvents]=useState<string[]>([]);
+  const [history,setHistory]=useState<any[]>([]);
   const [offlineReport,setOfflineReport]=useState<OfflineReport|null>(null);
 
 
@@ -128,7 +129,8 @@ export default function GamePage() {
   useEffect(()=>{
     if(!match)return;
     const tick=window.setInterval(async()=>{
-      const left=Math.max(0,new Date(match.finishesAt).getTime()-Date.now()); setRemaining(left);\n      const elapsed=1800000-left; setMatchPhase(elapsed<120000?"🔎 Encontrando adversário...":elapsed<600000?"⚔️ Fase de rotas":elapsed<1200000?"🐉 Disputa de objetivos":elapsed<1680000?"💥 Teamfights decisivas":"🏆 Últimos minutos da partida");
+      const left=Math.max(0,new Date(match.finishesAt).getTime()-Date.now()); setRemaining(left);
+      const elapsed=1800000-left; setMatchPhase(elapsed<120000?"🔎 Encontrando adversário...":elapsed<600000?"⚔️ Fase de rotas":elapsed<1200000?"🐉 Disputa de objetivos":elapsed<1680000?"💥 Teamfights decisivas":"🏆 Últimos minutos da partida");
       if(left===0){
         window.clearInterval(tick);
         const r=await fetch("/api/ranked/resolve",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({matchId:match.id})});
@@ -174,10 +176,12 @@ export default function GamePage() {
         <span className="pill">🌙 Noite</span><span className="pill">🏠 Quarto 01</span>
       </div>
       <div className={`pet-stage mood-${petMood}`}><img src="/assets/pet.svg" alt={pet.name} /><div className="pet-shadow" /><span className="pet-spark spark-1">✦</span><span className="pet-spark spark-2">✦</span></div>
-      <div className="speech"><span>{message}</span></div>\n      <div className={`match-overlay ${showMatch?"visible":""}`}>
+      <div className="speech"><span>{message}</span></div>
+      <div className={`match-overlay ${showMatch?"visible":""}`}>
         <div className="match-overlay-card">
           <span className="eyebrow">PARTIDA RANQUEADA</span>
-          <strong>{matchPhase}</strong>\n          {matchEvents.length>0&&<div className="match-events">{matchEvents.map((event,i)=><span key={i}>{event}</span>)}</div>}
+          <strong>{matchPhase}</strong>
+          {matchEvents.length>0&&<div className="match-events">{matchEvents.map((event,i)=><span key={i}>{event}</span>)}</div>}
           <div className="match-progress"><i style={{width:`${Math.max(2,Math.min(100,100-(remaining/1800000)*100))}%`}} /></div>
           <small>{mm}:{ss} restantes</small>
         </div>
