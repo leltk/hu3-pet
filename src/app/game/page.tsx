@@ -227,7 +227,7 @@ export default function GamePage() {
   if(!pet)return(
     <main className="game-shell intro-shell">
       <section className="intro-card">
-        <div className="intro-art"><img src="/assets/pet.svg" alt="Pet Hu3" /></div>
+        <div className="intro-art"><img src="/assets/pet.svg?v=2" alt="Pet Hu3" /></div>
         <p className="eyebrow">HU3 PET</p>
         <h1>Seu pet quer virar Challenger.</h1>
         <p>Treine, cuide dele e mande a criatura para a ranqueada.</p>
@@ -262,12 +262,12 @@ export default function GamePage() {
       <small>{testMessage||"Ranqueada: 15s · treino: sem cooldown · offline: 2h"}</small>
     </aside>}
     <section className="room">
-      <img className="room-art" src="/assets/room.svg" alt="" />
+      <img className="room-art" src="/assets/room.svg?v=2" alt="" />
       <div className="room-overlay" />
       <div className="room-hud">
         <span className="pill">🌙 Noite</span><span className="pill">🏠 Quarto 01</span>
       </div>
-      <div className={`pet-stage mood-${petMood}`}><div className="pet-equipment-visuals">{equippedVisuals.filter(item=>!item.slot.startsWith("ring_")).map((item)=><span className={`worn-item worn-${item.slot} visual-${item.visual?.head??item.visual?.body??item.visual?.boots??item.visual?.accessory??item.visual?.weapon??"default"}`} key={`${item.slot}-${item.name}`} aria-hidden="true" />)}</div><img src="/assets/pet.svg" alt={pet.name} /><div className="pet-shadow" /><span className="pet-spark spark-1">✦</span><span className="pet-spark spark-2">✦</span></div>
+      <div className={`pet-stage mood-${petMood}`}><div className="pet-equipment-visuals">{equippedVisuals.filter(item=>!item.slot.startsWith("ring_")).map((item)=><span className={`worn-item worn-${item.slot} visual-${item.visual?.head??item.visual?.body??item.visual?.boots??item.visual?.accessory??item.visual?.weapon??"default"}`} key={`${item.slot}-${item.name}`} aria-hidden="true" />)}</div><img src="/assets/pet.svg?v=2" alt={pet.name} /><div className="pet-shadow" /><span className="pet-spark spark-1">✦</span><span className="pet-spark spark-2">✦</span></div>
       <div className="speech"><span>{message}</span></div>
       <div className={`match-overlay ${showMatch?"visible":""}`}>
         <div className="match-overlay-card">
