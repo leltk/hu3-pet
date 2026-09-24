@@ -328,5 +328,6 @@ export default function GamePage() {
     </section>
     {showInventory&&<InventoryModal petId={pet.id} onClose={()=>setShowInventory(false)} onChanged={()=>loadEquipment(pet.id)} />}
     <MissionsPanel petId={pet.id} onChanged={(nextPet)=>setPet(nextPet)} />
-  </main>;
+  </main>
+  );
 }
