@@ -249,7 +249,8 @@ export default function GamePage() {
   const microAvg=avg(micro);
   const macroAvg=avg(macro);
 
-  return (\n    <main className="game-shell">
+  return (
+    <main className="game-shell">
     {testMode&&<aside className="test-console">
       <div className="test-console-head"><span>🧪 MODO TESTE</span><b>Timers acelerados</b></div>
       <div className="test-console-grid">
