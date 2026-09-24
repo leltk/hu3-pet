@@ -3,6 +3,7 @@
 import "./game.css";
 import { useEffect, useState } from "react";
 import InventoryModal from "./InventoryModal";
+import MissionsPanel from "./MissionsPanel";
 
 type Pet = {
   id: string; name: string; species: string; color: string;
@@ -286,5 +287,6 @@ export default function GamePage() {
       <div className="mini-stats"><span>🍀 Sorte <b>{pet.luck}</b></span><span>🎯 Micro <b>{microAvg}</b></span><span>🧠 Macro <b>{macroAvg}</b></span></div>
     </section>
     {showInventory&&<InventoryModal petId={pet.id} onClose={()=>setShowInventory(false)} onChanged={()=>loadEquipment(pet.id)} />}
+    <MissionsPanel petId={pet.id} onChanged={(nextPet)=>setPet(nextPet)} />
   </main>;
 }
