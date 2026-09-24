@@ -14,6 +14,7 @@ export default function InventoryModal({petId,onClose,onChanged}:Props) {
   const [selected,setSelected]=useState<InventoryItem|null>(null);
   const [loading,setLoading]=useState(true);
   const [busy,setBusy]=useState(false);
+  const [message,setMessage]=useState("");
 
   const load=async()=>{
     setLoading(true);
