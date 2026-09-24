@@ -15,13 +15,12 @@ RUN wget -q "https://godot-releases.nbg1.your-objectstorage.com/4.7.2-stable/God
  && test -n "$debug_template" \
  && cp "$release_template" /root/.local/share/godot/export_templates/4.7.2.stable/web_nothreads_release.zip \
  && cp "$debug_template" /root/.local/share/godot/export_templates/4.7.2.stable/web_nothreads_debug.zip
- && unzip -q templates.tpz -d /tmp/godot-templates \
- && find /tmp/godot-templates -type f -name 'web_nothreads_release.zip' -exec cp {} /root/.local/share/godot/export_templates/4.7.2.stable/ \\; \
- && find /tmp/godot-templates -type f -name 'web_nothreads_debug.zip' -exec cp {} /root/.local/share/godot/export_templates/4.7.2.stable/ \\; \
- && ls -la /root/.local/share/godot/export_templates/4.7.2.stable
 WORKDIR /src
 COPY godot ./godot
-RUN mkdir -p godot/build  && godot --headless --path godot --editor --quit  && godot --headless --path godot --export-release "Web" build/index.html  && test -f godot/build/index.html
+RUN mkdir -p godot/build \
+ && godot --headless --path godot --editor --quit \
+ && godot --headless --path godot --export-release "Web" build/index.html \
+ && test -f godot/build/index.html
 
 FROM node:22-alpine AS deps
 WORKDIR /app
