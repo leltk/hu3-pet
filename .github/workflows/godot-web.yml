@@ -26,5 +26,5 @@ jobs:
         run: |
           mkdir -p godot/build
           godot --headless --path godot --editor --quit
-          godot --headless --path godot --export-release "Web" godot/build/index.html
+          godot --headless --path godot --export-release "Web" build/index.html
           test -f godot/build/index.html
