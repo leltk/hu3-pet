@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { progressMissions } from "@/lib/game/missions";
 
 const ACTIONS: Record<string,{label:string;stat:string;amount:number;stamina:number;stress:number;coins:number}> = {
   cs:{label:"Farm Training",stat:"cs",amount:3,stamina:-8,stress:3,coins:-2},
@@ -75,6 +76,8 @@ export async function POST(request: Request) {
     if(critical) resultMessages.push("💥 TREINO CRÍTICO!");
     if(secondaryStat) resultMessages.push(`⚡ Treino também melhorou ${secondaryStat} (+${secondaryGain})`);
     await client.query("INSERT INTO pet_activities(pet_id,activity,stat,amount,stamina_delta,stress_delta,coins_delta,message) VALUES($1,$2,$3,$4,$5,$6,$7,$8)",[petId,config.label,stat,gain,config.stamina+staminaBonus,config.stress,config.coins,resultMessages.join(" · ")]);
+    await progressMissions(client,petId,"training",1);
+    await progressMissions(client,petId,"stat_gain",gain);
     await client.query("COMMIT");
     const updated=await db.query("SELECT * FROM pets WHERE id=$1",[petId]);
     return NextResponse.json({pet:updated.rows[0],message:resultMessages.join(" · "),critical,secondaryStat});
