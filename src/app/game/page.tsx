@@ -33,10 +33,11 @@ export default function GamePage() {
   const [petMood,setPetMood]=useState<"idle"|"happy"|"tired"|"tilt">("idle");
   const [showMatch,setShowMatch]=useState(false);
   const [matchPhase,setMatchPhase]=useState("Preparando a fila...");
-  const [matchEvents,setMatchEvents]=useState<string[]>([]);
+  const [matchEvents,setMatchEvents]=useState<string[]>([]);\n  const [history,setHistory]=useState<any[]>([]);
 
 
-  const refresh=async()=>{ if(!pet)return; const r=await fetch(`/api/pets?id=${pet.id}`); if(r.ok)setPet(await r.json()); };
+  const refresh=async()=>{ if(!pet)return; const r=await fetch(`/api/pets?id=${pet.id}`); if(r.ok){setPet(await r.json()); loadHistory();} };
+  const loadHistory=async()=>{ if(!pet)return; const r=await fetch(`/api/ranked/history?petId=${pet.id}`); if(r.ok)setHistory(await r.json()); };
 
   const create=async()=>{
     setBusy(true);
@@ -80,7 +81,7 @@ export default function GamePage() {
         window.clearInterval(tick);
         const r=await fetch("/api/ranked/resolve",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({matchId:match.id})});
         const data=await r.json();
-        if(r.ok){setMessage(data.win?`🏆 Vitória! +${data.lpDelta} LP`:`💀 Derrota. ${data.lpDelta} LP`);setPet(data.pet);setPetMood(data.win?"happy":"tilt");setMatchEvents(data.simulation?.events??[]);}
+        if(r.ok){setMessage(data.win?`🏆 Vitória! +${data.lpDelta} LP`:`💀 Derrota. ${data.lpDelta} LP`);setPet(data.pet);setPetMood(data.win?"happy":"tilt");setMatchEvents(data.simulation?.events??[]);loadHistory();}
         else setMessage(data.error??"Erro ao resolver partida.");
         setMatch(null); setRemaining(0); setShowMatch(false);
       }
@@ -156,6 +157,13 @@ export default function GamePage() {
         {match?<div className="match-card"><div><span>🎮 EM PARTIDA</span><small>O servidor está jogando por você.</small></div><strong>{mm}:{ss}</strong></div>:<button className="ranked" onClick={startRanked} disabled={busy||!ready}>🎮 <span>{ready?"JOGAR RANQUEADA":"RECUPERANDO..."}</span></button>}
       </div>
 
+      <div className="history">
+        <div className="section-title"><div><small>REGISTRO</small><h2>Últimas partidas</h2></div><span>{history.length} salvas</span></div>
+        {history.length===0?<div className="history-empty">Ainda não há partidas concluídas.</div>:history.slice(0,4).map((m)=><div className="history-row" key={m.id}>
+          <b className={m.result==="WIN"?"win":"loss"}>{m.result==="WIN"?"VITÓRIA":"DERROTA"}</b>
+          <span>{m.micro_score} micro · {m.macro_score} macro</span><strong>{m.lp_delta>0?"+":""}{m.lp_delta} LP</strong>
+        </div>)}
+      </div>
       <div className="mini-stats"><span>🍀 Sorte <b>{pet.luck}</b></span><span>🎯 Micro <b>{microAvg}</b></span><span>🧠 Macro <b>{macroAvg}</b></span></div>
     </section>
   </main>;
