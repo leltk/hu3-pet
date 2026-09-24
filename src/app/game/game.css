@@ -22,3 +22,17 @@
 .setup-icons{font-size:22px;letter-spacing:1px;margin:7px 0 3px}
 .setup-card small{font-size:8px;line-height:1.3;color:#758198}
 @media(max-width:560px){.setup-card{right:12px;top:55px;width:150px;padding:9px 10px}.setup-card>strong{font-size:11px}.setup-icons{font-size:18px}}
+
+.setup-visual{position:absolute;left:20%;bottom:29%;width:29%;height:22%;z-index:2;pointer-events:none;filter:drop-shadow(0 10px 12px #0008)}
+.monitor{position:absolute;bottom:35%;width:34%;height:42%;border:4px solid #202a3c;background:linear-gradient(145deg,#15253a,#070b12);border-radius:7px;box-shadow:inset 0 0 20px #000,0 0 10px #273b5c}
+.monitor:after{content:'';position:absolute;left:42%;bottom:-23%;width:16%;height:25%;background:#202a3c;border-radius:2px}
+.monitor-left{left:5%}.monitor-right{right:5%}
+.monitor span{position:absolute;inset:0;display:grid;place-items:center;font-size:18px;color:var(--green);opacity:.85}
+.tower{position:absolute;right:-3%;bottom:5%;width:19%;height:58%;border-radius:5px;background:linear-gradient(145deg,#172234,#080d15);border:2px solid #2c3950;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px}
+.tower i{display:block;width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 7px #8cf0b0}
+.keyboard{position:absolute;left:22%;bottom:5%;font-size:10px;letter-spacing:2px;color:#8997ac;background:#121b29;padding:4px 7px;border-radius:3px;transform:skewX(-12deg)}
+.headset{position:absolute;right:-16%;bottom:38%;font-size:24px;filter:drop-shadow(0 4px 5px #000)}
+.setup-glow{position:absolute;inset:5% -15% 0;background:radial-gradient(ellipse,#8cf0b044 0,transparent 65%);z-index:-1;animation:setupPulse 2s ease-in-out infinite}
+@keyframes setupPulse{0%,100%{opacity:.45}50%{opacity:1}}
+@media(max-width:900px){.setup-visual{left:15%;bottom:29%;width:33%}}
+@media(max-width:560px){.setup-visual{left:11%;bottom:29%;width:37%;height:20%}.setup-card{z-index:5}.monitor{border-width:3px}.keyboard{font-size:7px}.headset{font-size:18px}}
