@@ -5,7 +5,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
 RUN wget -q "https://godot-releases.nbg1.your-objectstorage.com/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip" -O godot.zip  && unzip -q godot.zip  && mv Godot_v4.7.2-stable_linux.x86_64 /usr/local/bin/godot  && chmod +x /usr/local/bin/godot  && wget -q "https://godot-releases.nbg1.your-objectstorage.com/4.7.2-stable/Godot_v4.7.2-stable_export_templates.tpz" -O templates.tpz  && mkdir -p /root/.local/share/godot/export_templates/4.7.2.stable  && unzip -q templates.tpz -d /root/.local/share/godot/export_templates/4.7.2.stable
 WORKDIR /src
 COPY godot ./godot
-RUN mkdir -p godot/build  && godot --headless --path godot --editor --quit  && godot --headless --path godot --export-release "Web" godot/build/index.html  && test -f godot/build/index.html
+RUN mkdir -p godot/build  && godot --headless --path godot --editor --quit  && godot --headless --path godot --export-release "Web" build/index.html  && test -f godot/build/index.html
 
 FROM node:22-alpine AS deps
 WORKDIR /app
