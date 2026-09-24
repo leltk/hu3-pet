@@ -2,6 +2,7 @@
 
 import "./game.css";
 import { useEffect, useState } from "react";
+import InventoryModal from "./InventoryModal";
 
 type Pet = {
   id: string; name: string; species: string; color: string;
@@ -49,6 +50,7 @@ export default function GamePage() {
   const [matchEvents,setMatchEvents]=useState<string[]>([]);
   const [history,setHistory]=useState<any[]>([]);
   const [offlineReport,setOfflineReport]=useState<OfflineReport|null>(null);
+  const [showInventory,setShowInventory]=useState(false);
 
 
   const loadHistoryById=async(id:string)=>{
@@ -222,7 +224,7 @@ export default function GamePage() {
     <section className="panel">
       <header className="topbar">
         <div><p className="eyebrow">MEU PET</p><h1>{pet.name}</h1></div>
-        <div className="currency"><span>🪙 {pet.coins}</span><span>⭐ {pet.xp}</span></div>
+        <div className="currency"><span>🪙 {pet.coins}</span><span>⭐ {pet.xp}</span><button className="inventory-open" onClick={()=>setShowInventory(true)}>🎒 Inventário</button></div>
       </header>
 
       <div className="condition-grid">
@@ -263,5 +265,6 @@ export default function GamePage() {
       </div>
       <div className="mini-stats"><span>🍀 Sorte <b>{pet.luck}</b></span><span>🎯 Micro <b>{microAvg}</b></span><span>🧠 Macro <b>{macroAvg}</b></span></div>
     </section>
+    {showInventory&&<InventoryModal petId={pet.id} onClose={()=>setShowInventory(false)} />}
   </main>;
 }
