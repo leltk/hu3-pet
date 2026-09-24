@@ -34,7 +34,7 @@ export async function progressMissions(
     await client.query(
       `UPDATE pet_missions
        SET progress=LEAST(pet_missions.progress+$4,target),
-           completed_at=CASE WHEN LEAST($4,target)>=target AND completed_at IS NULL THEN NOW() ELSE completed_at END
+           completed_at=CASE WHEN LEAST(pet_missions.progress+$4,target)>=target AND completed_at IS NULL THEN NOW() ELSE completed_at END
        FROM mission_definitions m
        WHERE pet_missions.pet_id=$1
          AND pet_missions.mission_id=m.id
