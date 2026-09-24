@@ -1,0 +1,42 @@
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: hu3-pet-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: hu3pet
+      POSTGRES_PASSWORD: change-me
+      POSTGRES_DB: hu3pet
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hu3pet -d hu3pet"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - hu3-pet
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hu3-pet-web
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://hu3pet:change-me@db:5432/hu3pet
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    networks:
+      - hu3-pet
+
+volumes:
+  postgres_data:
+
+networks:
+  hu3-pet:
+    driver: bridge
