@@ -1,29 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 360">
 <defs>
-  <linearGradient id="fur" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#FFD8A8"/><stop offset="1" stop-color="#F2A86B"/></linearGradient>
-  <linearGradient id="belly" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#FFF0D4"/><stop offset="1" stop-color="#FFE2B7"/></linearGradient>
-  <filter id="soft"><feDropShadow dx="0" dy="9" stdDeviation="7" flood-color="#5A3927" flood-opacity=".22"/></filter>
+  <linearGradient id="fur" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#F5C996"/><stop offset="1" stop-color="#D98D62"/></linearGradient>
+  <linearGradient id="belly" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#FBE6C7"/><stop offset="1" stop-color="#F3D0A7"/></linearGradient>
+  <filter id="soft"><feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#493128" flood-opacity=".22"/></filter>
 </defs>
-<ellipse cx="160" cy="326" rx="82" ry="14" fill="#6B4733" opacity=".18"/>
+<ellipse cx="160" cy="326" rx="82" ry="14" fill="#493128" opacity=".18"/>
 <g filter="url(#soft)">
-  <path d="M91 118 77 64c-3-12 10-21 20-14l55 40 16 0 55-40c10-7 23 2 20 14l-14 54c18 22 28 49 28 82 0 73-39 111-97 111S63 273 63 200c0-33 10-60 28-82Z" fill="url(#fur)" stroke="#B86E48" stroke-width="5" stroke-linejoin="round"/>
-  <path d="M101 94 91 76l38 28Z" fill="#F6B8A0"/>
-  <path d="m219 94 10-18-38 28Z" fill="#F6B8A0"/>
-  <ellipse cx="160" cy="226" rx="67" ry="70" fill="url(#belly)" opacity=".95"/>
-  <ellipse cx="121" cy="174" rx="17" ry="22" fill="#FFFDF8"/>
-  <ellipse cx="199" cy="174" rx="17" ry="22" fill="#FFFDF8"/>
-  <circle cx="126" cy="179" r="9" fill="#4A352E"/>
-  <circle cx="194" cy="179" r="9" fill="#4A352E"/>
-  <circle cx="129" cy="176" r="3.2" fill="#FFF"/>
-  <circle cx="197" cy="176" r="3.2" fill="#FFF"/>
-  <path d="M151 205q9 8 18 0" fill="none" stroke="#70453A" stroke-width="5" stroke-linecap="round"/>
-  <ellipse cx="100" cy="207" rx="9" ry="6" fill="#E98B91" opacity=".45"/>
-  <ellipse cx="220" cy="207" rx="9" ry="6" fill="#E98B91" opacity=".45"/>
-  <path d="M92 255q-19 14-22 35 23 11 43-13" fill="#EAA16D" stroke="#B86E48" stroke-width="5"/>
-  <path d="M228 255q19 14 22 35-23 11-43-13" fill="#EAA16D" stroke="#B86E48" stroke-width="5"/>
-  <ellipse cx="112" cy="300" rx="34" ry="21" fill="#EFA36C" stroke="#B86E48" stroke-width="5"/>
-  <ellipse cx="208" cy="300" rx="34" ry="21" fill="#EFA36C" stroke="#B86E48" stroke-width="5"/>
-  <path d="M96 300q10-8 20 0M204 300q10-8 20 0" fill="none" stroke="#B86E48" stroke-width="4" stroke-linecap="round"/>
-  <path d="M83 244q-9-12-4-24" fill="none" stroke="#FFF0D4" stroke-width="9" stroke-linecap="round" opacity=".65"/>
-</g>
-</svg>
+<path d="M91 118 77 64c-3-12 10-21 20-14l55 40 16 0 55-40c10-7 23 2 20 14l-14 54c18 22 28 49 28 82 0 73-39 111-97 111S63 273 63 200c0-33 10-60 28-82Z" fill="url(#fur)" stroke="#A96548" stroke-width="5" stroke-linejoin="round"/>
+<path d="M101 94 91 76l38 28Z" fill="#E9A88E"/><path d="m219 94 10-18-38 28Z" fill="#E9A88E"/>
+<ellipse cx="160" cy="226" rx="67" ry="70" fill="url(#belly)"/>
+<ellipse cx="121" cy="174" rx="17" ry="22" fill="#FFF9F0"/><ellipse cx="199" cy="174" rx="17" ry="22" fill="#FFF9F0"/>
+<circle cx="126" cy="179" r="9" fill="#493832"/><circle cx="194" cy="179" r="9" fill="#493832"/>
+<circle cx="129" cy="176" r="3.2" fill="#FFF"/><circle cx="197" cy="176" r="3.2" fill="#FFF"/>
+<path d="M151 205q9 8 18 0" fill="none" stroke="#6A4339" stroke-width="5" stroke-linecap="round"/>
+<ellipse cx="100" cy="207" rx="9" ry="6" fill="#D98286" opacity=".45"/><ellipse cx="220" cy="207" rx="9" ry="6" fill="#D98286" opacity=".45"/>
+<path d="M92 255q-19 14-22 35 23 11 43-13" fill="#DF9768" stroke="#A96548" stroke-width="5"/>
+<path d="M228 255q19 14 22 35-23 11-43-13" fill="#DF9768" stroke="#A96548" stroke-width="5"/>
+<ellipse cx="112" cy="300" rx="34" ry="21" fill="#E09A69" stroke="#A96548" stroke-width="5"/><ellipse cx="208" cy="300" rx="34" ry="21" fill="#E09A69" stroke="#A96548" stroke-width="5"/>
+<path d="M96 300q10-8 20 0M204 300q10-8 20 0" fill="none" stroke="#A96548" stroke-width="4" stroke-linecap="round"/>
+</g></svg>
