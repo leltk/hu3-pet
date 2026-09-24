@@ -45,3 +45,6 @@
 .match-overlay-card small{display:block;margin-top:6px;color:#8d99ad;font-weight:800}
 .match-progress{height:5px;background:#202b3d;border-radius:9px;overflow:hidden;margin-top:12px}
 .match-progress i{display:block;height:100%;background:var(--green);border-radius:9px;transition:width 1s linear}
+
+.match-events{display:grid;gap:6px;margin-top:10px;text-align:left}
+.match-events span{padding:7px 9px;border:1px solid #ffffff12;background:#111a27;border-radius:9px;color:#cbd4e3;font-size:9px;font-weight:800}
