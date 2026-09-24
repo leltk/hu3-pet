@@ -102,6 +102,10 @@ export default function GamePage() {
   const mm=Math.floor(remaining/60000).toString().padStart(2,"0");
   const ss=Math.floor((remaining%60000)/1000).toString().padStart(2,"0");
   const rankName=`${pet.rank_tier}${["MASTER","GRANDMASTER","CHALLENGER"].includes(pet.rank_tier)?"":" "+pet.rank_division}`;
+  const rankIndex=["IRON","BRONZE","SILVER","GOLD","PLATINUM","EMERALD","DIAMOND","MASTER","GRANDMASTER","CHALLENGER"].indexOf(pet.rank_tier);
+  const setupLevel=Math.max(1,Math.min(5,Math.floor(rankIndex/2)+1));
+  const setupNames=["Setup de Sobrevivência","Setup Básico","Setup Gamer","Setup Competitivo","Setup Challenger"];
+  const setupIcons=["🖥️","🖥️⌨️","🖥️⌨️🖱️","🖥️🖥️🎧","🖥️🖥️⚡🏆"];
   const microAvg=useMemo(()=>avg(micro),[pet]);
   const macroAvg=useMemo(()=>avg(macro),[pet]);
 
