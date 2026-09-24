@@ -1,7 +1,7 @@
 "use client";
 
 import "./game.css";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 type Pet = {
   id: string; name: string; species: string; color: string;
@@ -12,6 +12,13 @@ type Pet = {
 };
 
 type Match = { id: string; finishesAt: string };
+
+type OfflineReport = {
+  awayMinutes: number;
+  passiveXp: number;
+  passiveCoins: number;
+  events: string[];
+};
 
 const micro = [
   ["cs","CS"],["positioning","Posicionamento"],["skillshots","Skillshots"],
@@ -34,15 +41,60 @@ export default function GamePage() {
   const [showMatch,setShowMatch]=useState(false);
   const [matchPhase,setMatchPhase]=useState("Preparando a fila...");
   const [matchEvents,setMatchEvents]=useState<string[]>([]);\n  const [history,setHistory]=useState<any[]>([]);
+  const [offlineReport,setOfflineReport]=useState<OfflineReport|null>(null);
 
 
-  const refresh=async()=>{ if(!pet)return; const r=await fetch(`/api/pets?id=${pet.id}`); if(r.ok){setPet(await r.json()); loadHistory();} };
-  const loadHistory=async()=>{ if(!pet)return; const r=await fetch(`/api/ranked/history?petId=${pet.id}`); if(r.ok)setHistory(await r.json()); };
+  const loadHistoryById=async(id:string)=>{
+    const r=await fetch(`/api/ranked/history?petId=${id}`);
+    if(r.ok)setHistory(await r.json());
+  };
+
+  const loadHistory=async()=>{ if(pet) await loadHistoryById(pet.id); };
+
+  const refresh=async()=>{
+    if(!pet)return;
+    const r=await fetch(`/api/pets?id=${pet.id}`);
+    if(r.ok){
+      const data=await r.json();
+      setPet(data.pet);
+      setOfflineReport(data.offlineReport ?? null);
+      await loadHistoryById(pet.id);
+    }
+  };
+
+  useEffect(()=>{
+    const savedId=window.localStorage.getItem("hu3-pet-id");
+    if(!savedId)return;
+
+    const loadSavedPet=async()=>{
+      const r=await fetch(`/api/pets?id=${savedId}`);
+      if(!r.ok){
+        window.localStorage.removeItem("hu3-pet-id");
+        return;
+      }
+      const data=await r.json();
+      setPet(data.pet);
+      setOfflineReport(data.offlineReport ?? null);
+      await loadHistoryById(savedId);
+      if(data.offlineReport){
+        setActivity(`🌙 Seu pet ficou ${data.offlineReport.awayMinutes} min sozinho e continuou a vida dele.`);
+        setPetMood(data.offlineReport.events.some((event:string)=>event.includes("praticando"))?"happy":"idle");
+      }
+    };
+
+    loadSavedPet();
+  }, []);
 
   const create=async()=>{
     setBusy(true);
     const r=await fetch("/api/pets",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name,species:"blob",color:"green"})});
-    if(r.ok)setPet(await r.json());
+    if(r.ok){
+      const created=await r.json();
+      setPet(created);
+      setOfflineReport(null);
+      window.localStorage.setItem("hu3-pet-id",created.id);
+      await loadHistoryById(created.id);
+    }
     setBusy(false);
   };
 
@@ -81,7 +133,7 @@ export default function GamePage() {
         window.clearInterval(tick);
         const r=await fetch("/api/ranked/resolve",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({matchId:match.id})});
         const data=await r.json();
-        if(r.ok){setMessage(data.win?`🏆 Vitória! +${data.lpDelta} LP`:`💀 Derrota. ${data.lpDelta} LP`);setPet(data.pet);setPetMood(data.win?"happy":"tilt");setMatchEvents(data.simulation?.events??[]);loadHistory();}
+        if(r.ok){setOfflineReport(null);setMessage(data.win?`🏆 Vitória! +${data.lpDelta} LP`:`💀 Derrota. ${data.lpDelta} LP`);setPet(data.pet);setPetMood(data.win?"happy":"tilt");setMatchEvents(data.simulation?.events??[]);loadHistory();}
         else setMessage(data.error??"Erro ao resolver partida.");
         setMatch(null); setRemaining(0); setShowMatch(false);
       }
@@ -111,8 +163,8 @@ export default function GamePage() {
   const setupLevel=Math.max(1,Math.min(5,Math.floor(rankIndex/2)+1));
   const setupNames=["Setup de Sobrevivência","Setup Básico","Setup Gamer","Setup Competitivo","Setup Challenger"];
   const setupIcons=["🖥️","🖥️⌨️","🖥️⌨️🖱️","🖥️🖥️🎧","🖥️🖥️⚡🏆"];
-  const microAvg=useMemo(()=>avg(micro),[pet]);
-  const macroAvg=useMemo(()=>avg(macro),[pet]);
+  const microAvg=avg(micro);
+  const macroAvg=avg(macro);
 
   return <main className="game-shell">
     <section className="room">
@@ -144,6 +196,18 @@ export default function GamePage() {
         <div className="meter"><div><span>⚡ Stamina</span><b>{pet.stamina}</b></div><i><em style={{width:`${pet.stamina}%`}}/></i></div>
         <div className="meter"><div><span>😵 Stress</span><b>{pet.stress}</b></div><i><em className="stress-fill" style={{width:`${pet.stress}%`}}/></i></div>
       </div>
+
+      {offlineReport && (
+        <div className="offline-card">
+          <div className="offline-head">
+            <span>🌙 ENQUANTO VOCÊ ESTAVA FORA</span>
+            <button onClick={()=>setOfflineReport(null)} aria-label="Fechar resumo">×</button>
+          </div>
+          <strong>Seu pet continuou vivendo.</strong>
+          <p>Ficou <b>{offlineReport.awayMinutes} min</b> sozinho · +{offlineReport.passiveXp} XP · +{offlineReport.passiveCoins} 🪙</p>
+          {offlineReport.events.map((event,i)=><span key={i}>{event}</span>)}
+        </div>
+      )}
 
       <div className="activity"><span>●</span>{activity}</div>
 
