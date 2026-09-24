@@ -1,5 +1,4 @@
-"use client";
-
+import "./game.css";
 import { useEffect, useState } from "react";
 
 type Pet = {
