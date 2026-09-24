@@ -72,7 +72,10 @@ export async function POST(request: Request) {
     }
     const staminaBonus=effects.activity_stamina??0;
     const query="UPDATE pets SET "+stat+"="+stat+"+$1"+(secondaryStat?", "+secondaryStat+"="+secondaryStat+"+$7":"")+", stamina=GREATEST(0,stamina+$2+$8), stress=LEAST(100,stress+$3), coins=GREATEST(0,coins+$4), xp=xp+$6, last_training_at=NOW(), updated_at=NOW() WHERE id=$5";
-    await client.query(query,[gain,config.stamina,config.stress,config.coins,petId,xp,secondaryGain,staminaBonus]);
+    const params = secondaryStat
+      ? [gain,config.stamina,config.stress,config.coins,petId,xp,secondaryGain,staminaBonus]
+      : [gain,config.stamina,config.stress,config.coins,petId,xp,0,staminaBonus];
+    await client.query(query,params);
     const resultMessages=[`+${gain} ${stat}`,`+${xp} XP`];
     if(critical) resultMessages.push("💥 TREINO CRÍTICO!");
     if(secondaryStat) resultMessages.push(`⚡ Treino também melhorou ${secondaryStat} (+${secondaryGain})`);
