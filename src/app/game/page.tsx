@@ -33,6 +33,7 @@ export default function GamePage() {
   const [petMood,setPetMood]=useState<"idle"|"happy"|"tired"|"tilt">("idle");
   const [showMatch,setShowMatch]=useState(false);
   const [matchPhase,setMatchPhase]=useState("Preparando a fila...");
+  const [matchEvents,setMatchEvents]=useState<string[]>([]);
 
 
   const refresh=async()=>{ if(!pet)return; const r=await fetch(`/api/pets?id=${pet.id}`); if(r.ok)setPet(await r.json()); };
@@ -66,7 +67,7 @@ export default function GamePage() {
     if(!pet)return; setBusy(true);
     const r=await fetch("/api/ranked/start",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({petId:pet.id})});
     const data=await r.json();
-    if(r.ok){setMatch({id:data.matchId,finishesAt:data.finishesAt});setMessage("🎮 Partida encontrada. Seu pet entrou no Rift.");setPetMood("idle");setShowMatch(true);setMatchPhase("Preparando a fila...");setRemaining(Math.max(0,new Date(data.finishesAt).getTime()-Date.now()));}
+    if(r.ok){setMatch({id:data.matchId,finishesAt:data.finishesAt});setMessage("🎮 Partida encontrada. Seu pet entrou no Rift.");setPetMood("idle");setShowMatch(true);setMatchEvents([]);setMatchPhase("Preparando a fila...");setRemaining(Math.max(0,new Date(data.finishesAt).getTime()-Date.now()));}
     else setMessage(data.error??"Não foi possível iniciar.");
     setBusy(false);
   };
@@ -79,7 +80,7 @@ export default function GamePage() {
         window.clearInterval(tick);
         const r=await fetch("/api/ranked/resolve",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({matchId:match.id})});
         const data=await r.json();
-        if(r.ok){setMessage(data.win?`🏆 Vitória! +${data.lpDelta} LP`:`💀 Derrota. ${data.lpDelta} LP`);setPet(data.pet);setPetMood(data.win?"happy":"tilt");}
+        if(r.ok){setMessage(data.win?`🏆 Vitória! +${data.lpDelta} LP`:`💀 Derrota. ${data.lpDelta} LP`);setPet(data.pet);setPetMood(data.win?"happy":"tilt");setMatchEvents(data.simulation?.events??[]);}
         else setMessage(data.error??"Erro ao resolver partida.");
         setMatch(null); setRemaining(0); setShowMatch(false);
       }
@@ -123,7 +124,7 @@ export default function GamePage() {
       <div className="speech"><span>{message}</span></div>\n      <div className={`match-overlay ${showMatch?"visible":""}`}>
         <div className="match-overlay-card">
           <span className="eyebrow">PARTIDA RANQUEADA</span>
-          <strong>{matchPhase}</strong>
+          <strong>{matchPhase}</strong>\n          {matchEvents.length>0&&<div className="match-events">{matchEvents.map((event,i)=><span key={i}>{event}</span>)}</div>}
           <div className="match-progress"><i style={{width:`${Math.max(2,Math.min(100,100-(remaining/1800000)*100))}%`}} /></div>
           <small>{mm}:{ss} restantes</small>
         </div>
