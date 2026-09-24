@@ -33,3 +33,5 @@ jobs:
           godot --headless --path godot --editor --quit
           godot --headless --path godot --export-release "Web" build/index.html
           test -f godot/build/index.html
+      - name: Validate Docker build
+        run: docker build --tag hu3-pet-build-check .
