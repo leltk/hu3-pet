@@ -31,6 +31,9 @@ export default function GamePage() {
   const [busy,setBusy]=useState(false);
   const [activity,setActivity]=useState("Escolha um treino.");
   const [petMood,setPetMood]=useState<"idle"|"happy"|"tired"|"tilt">("idle");
+  const [showMatch,setShowMatch]=useState(false);
+  const [matchPhase,setMatchPhase]=useState("Preparando a fila...");
+
 
   const refresh=async()=>{ if(!pet)return; const r=await fetch(`/api/pets?id=${pet.id}`); if(r.ok)setPet(await r.json()); };
 
@@ -63,7 +66,7 @@ export default function GamePage() {
     if(!pet)return; setBusy(true);
     const r=await fetch("/api/ranked/start",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({petId:pet.id})});
     const data=await r.json();
-    if(r.ok){setMatch({id:data.matchId,finishesAt:data.finishesAt});setMessage("🎮 Partida encontrada. Seu pet entrou no Rift.");setPetMood("idle");setRemaining(Math.max(0,new Date(data.finishesAt).getTime()-Date.now()));}
+    if(r.ok){setMatch({id:data.matchId,finishesAt:data.finishesAt});setMessage("🎮 Partida encontrada. Seu pet entrou no Rift.");setPetMood("idle");setShowMatch(true);setMatchPhase("Preparando a fila...");setRemaining(Math.max(0,new Date(data.finishesAt).getTime()-Date.now()));}
     else setMessage(data.error??"Não foi possível iniciar.");
     setBusy(false);
   };
@@ -71,14 +74,14 @@ export default function GamePage() {
   useEffect(()=>{
     if(!match)return;
     const tick=window.setInterval(async()=>{
-      const left=Math.max(0,new Date(match.finishesAt).getTime()-Date.now()); setRemaining(left);
+      const left=Math.max(0,new Date(match.finishesAt).getTime()-Date.now()); setRemaining(left);\n      const elapsed=1800000-left; setMatchPhase(elapsed<120000?"🔎 Encontrando adversário...":elapsed<600000?"⚔️ Fase de rotas":elapsed<1200000?"🐉 Disputa de objetivos":elapsed<1680000?"💥 Teamfights decisivas":"🏆 Últimos minutos da partida");
       if(left===0){
         window.clearInterval(tick);
         const r=await fetch("/api/ranked/resolve",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({matchId:match.id})});
         const data=await r.json();
         if(r.ok){setMessage(data.win?`🏆 Vitória! +${data.lpDelta} LP`:`💀 Derrota. ${data.lpDelta} LP`);setPet(data.pet);setPetMood(data.win?"happy":"tilt");}
         else setMessage(data.error??"Erro ao resolver partida.");
-        setMatch(null); setRemaining(0);
+        setMatch(null); setRemaining(0); setShowMatch(false);
       }
     },1000);
     return()=>window.clearInterval(tick);
@@ -117,7 +120,15 @@ export default function GamePage() {
         <span className="pill">🌙 Noite</span><span className="pill">🏠 Quarto 01</span>
       </div>
       <div className={`pet-stage mood-${petMood}`}><img src="/assets/pet.svg" alt={pet.name} /><div className="pet-shadow" /><span className="pet-spark spark-1">✦</span><span className="pet-spark spark-2">✦</span></div>
-      <div className="speech"><span>{message}</span></div>
+      <div className="speech"><span>{message}</span></div>\n      <div className={`match-overlay ${showMatch?"visible":""}`}>
+        <div className="match-overlay-card">
+          <span className="eyebrow">PARTIDA RANQUEADA</span>
+          <strong>{matchPhase}</strong>
+          <div className="match-progress"><i style={{width:`${Math.max(2,Math.min(100,100-(remaining/1800000)*100))}%`}} /></div>
+          <small>{mm}:{ss} restantes</small>
+        </div>
+      </div>
+
       <div className="rank-sticker"><small>RANKED</small><strong>{rankName}</strong><b>{pet.lp} LP</b></div>
     </section>
 
