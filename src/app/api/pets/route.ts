@@ -144,7 +144,7 @@ async function loadPet(id: string) {
 
     const finalPet = (await client.query("SELECT * FROM pets WHERE id = $1", [id])).rows[0];
     const matchResult = await client.query(
-      `SELECT id, finishes_at
+      `SELECT id, finishes_at AS "finishesAt"
        FROM ranked_matches
        WHERE pet_id = $1 AND result IS NULL
        ORDER BY created_at DESC
