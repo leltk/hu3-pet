@@ -36,3 +36,12 @@
 @keyframes setupPulse{0%,100%{opacity:.45}50%{opacity:1}}
 @media(max-width:900px){.setup-visual{left:15%;bottom:29%;width:33%}}
 @media(max-width:560px){.setup-visual{left:11%;bottom:29%;width:37%;height:20%}.setup-card{z-index:5}.monitor{border-width:3px}.keyboard{font-size:7px}.headset{font-size:18px}}
+
+.match-overlay{position:absolute;inset:0;z-index:6;display:grid;place-items:start center;padding-top:28%;background:linear-gradient(180deg,#05091200,#05091266);opacity:0;pointer-events:none;transition:opacity .35s}
+.match-overlay.visible{opacity:1}
+.match-overlay-card{width:min(390px,72%);padding:17px 20px;border:1px solid #ffffff20;background:#080e18dd;backdrop-filter:blur(14px);border-radius:18px;text-align:center;box-shadow:0 15px 50px #0008}
+.match-overlay-card .eyebrow{margin-bottom:7px}
+.match-overlay-card strong{display:block;font-size:18px}
+.match-overlay-card small{display:block;margin-top:6px;color:#8d99ad;font-weight:800}
+.match-progress{height:5px;background:#202b3d;border-radius:9px;overflow:hidden;margin-top:12px}
+.match-progress i{display:block;height:100%;background:var(--green);border-radius:9px;transition:width 1s linear}
