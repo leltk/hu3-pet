@@ -71,4 +71,10 @@ export async function POST(request:Request){
 
   await client.query("COMMIT");
   return NextResponse.json({result:win?"WIN":"LOSS",win,lpDelta,xpDelta:rankedXp,baseXpDelta:xpDelta,coinsDelta,rank,simulation,micro:Math.round(micro),macro:Math.round(macro),highlight,drop,pet:updated.rows[0]});
+  } catch(error) {
+    await client.query("ROLLBACK");
+    return NextResponse.json({error:error instanceof Error?error.message:"Erro ao resolver partida"},{status:400});
+  } finally {
+    client.release();
+  }
 }
