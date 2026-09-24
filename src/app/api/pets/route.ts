@@ -181,9 +181,26 @@ export async function POST(request: Request) {
   const name = String(body.name ?? "").trim().slice(0, 32);
   if (!name) return NextResponse.json({ error: "Nome obrigatório" }, { status: 400 });
 
-  const { rows } = await db.query(
-    "INSERT INTO pets (name,species,color) VALUES ($1,$2,$3) RETURNING *",
-    [name, String(body.species ?? "blob"), String(body.color ?? "green")]
-  );
-  return NextResponse.json(rows[0], { status: 201 });
+  const client = await db.connect();
+  try {
+    await client.query("BEGIN");
+    const { rows } = await client.query(
+      "INSERT INTO pets (name,species,color) VALUES ($1,$2,$3) RETURNING *",
+      [name, String(body.species ?? "blob"), String(body.color ?? "green")]
+    );
+    const pet = rows[0];
+    await client.query(
+      `INSERT INTO pet_items (pet_id,item_id,quantity)
+       VALUES ($1,'doran_ring',1),($1,'boots',1),($1,'energy_cookie',3),($1,'rabadon',1)
+       ON CONFLICT (pet_id,item_id) DO NOTHING`,
+      [pet.id]
+    );
+    await client.query("COMMIT");
+    return NextResponse.json(pet, { status: 201 });
+  } catch {
+    await client.query("ROLLBACK");
+    return NextResponse.json({ error:"Não foi possível criar o pet" }, { status:500 });
+  } finally {
+    client.release();
+  }
 }
